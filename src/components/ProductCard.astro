@@ -6,11 +6,7 @@ const initial = product.name ? product.name.charAt(0).toUpperCase() : '?';
 
 // Colores
 const getCategoryColor = (cat: string) => {
-    // 1. LIMPIEZA DE DATOS:
-    // Si Airtable manda un array ['Solar'], nos quedamos con 'Solar'.
     const valorPuro = Array.isArray(cat) ? cat[0] : cat;
-    
-    // 2. Convertimos a texto y minúsculas de forma segura
     const category = String(valorPuro || '').toLowerCase();
 
     if (category.includes('solar')) return '#F59E0B';
@@ -37,10 +33,10 @@ const bgColor = getCategoryColor(product.category);
     
     <div class="info">
         <div class="header">
-            <h3>{product.name}</h3>
+            <h3 class="truncate">{product.name}</h3>
             {(product.oldPrice || product.isOffer) && <span class="badge">OFERTA</span>}
         </div>
-        <p class="code">
+        <p class="code truncate">
             <span class="category-dot" style={`background-color: ${bgColor};`}></span>
             {product.category || 'General'} • Cód: {product.id}
         </p>
@@ -66,8 +62,7 @@ const bgColor = getCategoryColor(product.category);
             data-quantity="1" 
             aria-label="Agregar"
         >
-            AGREGAR
-        </button>
+            + </button>
     </div>
 </article>
 
@@ -78,7 +73,6 @@ const bgColor = getCategoryColor(product.category);
         const input = row.querySelector('.qty-input');
         const addBtn = row.querySelector('.add-to-cart-btn');
 
-        // Verificación de seguridad para evitar errores del editor
         if (
             !minusBtn || !plusBtn || 
             !input || !(input instanceof HTMLInputElement) || 
@@ -115,37 +109,122 @@ const bgColor = getCategoryColor(product.category);
         display: flex;
         align-items: center;
         background: white;
-        padding: 1rem;
+        padding: 0.8rem 0.5rem; /* Un poco menos de padding */
         border-bottom: 1px solid #f0f0f0;
-        gap: 1rem;
-        flex-wrap: wrap;
+        gap: 0.8rem; /* Menos espacio entre elementos */
+        
+        /* CAMBIO CLAVE 1: Evita que se rompa en varias líneas */
+        flex-wrap: nowrap; 
     }
 
-    .thumb { width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; color: white; font-family: var(--font-brand); font-weight: bold; font-size: 1.5rem; }
+    /* CAMBIO CLAVE 2: Icono más pequeño */
+    .thumb {
+        width: 40px; /* Antes 48px */
+        height: 40px; /* Antes 48px */
+        border-radius: 50%;
+        flex-shrink: 0; /* Evita que el icono se aplaste */
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        color: white;
+        font-family: var(--font-brand);
+        font-weight: bold;
+        font-size: 1.2rem; /* Letra un poco más chica */
+    }
+
     .thumb img { position: absolute; width: 100%; height: 100%; object-fit: cover; background: white; }
     
-    .info { flex-grow: 1; min-width: 200px; }
-    .header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    h3 { font-size: 1rem; margin: 0; color: var(--color-black); font-weight: 600; font-family: var(--font-body); }
-    .code { font-size: 0.75rem; color: #888; display: flex; align-items: center; gap: 5px; margin-top: 4px; }
-    .category-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-    .badge { background-color: var(--color-accent); color: white; font-size: 0.6rem; padding: 1px 6px; border-radius: 4px; font-weight: bold; }
+    /* CAMBIO CLAVE 3: Manejo de texto largo */
+    .info {
+        flex-grow: 1;
+        min-width: 0; /* Necesario para que el truncado de texto funcione en flexbox */
+        overflow: hidden;
+    }
 
-    .actions { display: flex; align-items: center; gap: 1rem; margin-left: auto; }
-    .prices { display: flex; flex-direction: column; align-items: flex-end; margin-right: 5px; }
-    .price { font-weight: 700; color: var(--color-black); }
-    .old-price { font-size: 0.75rem; text-decoration: line-through; color: #aaa; }
+    .header { 
+        display: flex; 
+        align-items: center; 
+        gap: 5px;
+        flex-wrap: nowrap; /* Mantiene el badge de oferta al lado del título */
+    }
 
-    .qty-selector { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; }
-    .qty-btn { background: #f9f9f9; border: none; width: 30px; height: 36px; font-weight: bold; cursor: pointer; color: var(--color-black); }
-    .qty-btn:hover { background: #eee; }
-    .qty-input { width: 30px; height: 36px; border: none; text-align: center; font-size: 0.9rem; color: var(--color-black); outline: none; }
+    h3 {
+        font-size: 0.95rem;
+        margin: 0;
+        color: var(--color-black);
+        font-weight: 600;
+        font-family: var(--font-body);
+    }
 
-    .add-to-cart-btn { background: var(--color-black); color: white; border: none; padding: 0 15px; height: 38px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    /* Clase utilitaria para cortar texto con ... */
+    .truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .code {
+        font-size: 0.7rem;
+        color: #888;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 2px;
+    }
+    .category-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .badge { background-color: var(--color-accent); color: white; font-size: 0.55rem; padding: 1px 4px; border-radius: 4px; font-weight: bold; flex-shrink: 0; }
+
+    .actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: auto;
+        flex-shrink: 0; /* Evita que los precios y botones se aplasten */
+    }
+
+    .prices {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        margin-right: 2px;
+    }
+    .price { font-weight: 700; color: var(--color-black); font-size: 1rem; }
+    .old-price { font-size: 0.7rem; text-decoration: line-through; color: #aaa; }
+
+    /* Selector de cantidad más compacto */
+    .qty-selector { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; height: 32px; }
+    .qty-btn { background: #f9f9f9; border: none; width: 28px; height: 100%; font-weight: bold; cursor: pointer; color: var(--color-black); padding: 0; display: flex; align-items: center; justify-content: center;}
+    .qty-input { width: 28px; height: 100%; border: none; text-align: center; font-size: 0.85rem; color: var(--color-black); outline: none; padding: 0; }
+
+    /* Botón de agregar más compacto (solo el +) */
+    .add-to-cart-btn {
+        background: var(--color-black);
+        color: white;
+        border: none;
+        width: 32px; /* Cuadrado */
+        height: 32px;
+        border-radius: 4px;
+        font-size: 1.2rem; /* El + más grande */
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        padding-bottom: 2px; /* Ajuste visual vertical */
+    }
     .add-to-cart-btn:hover { background: var(--color-accent); }
 
-    @media (max-width: 600px) {
-        .actions { width: 100%; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f9f9f9; }
-        .prices { align-items: flex-start; margin-right: 0; }
+    /* Ajustes finos para pantallas MUY pequeñas (ej. iPhone SE) */
+    @media (max-width: 380px) {
+        .product-row { gap: 0.4rem; padding: 0.8rem 0.2rem; }
+        .thumb { width: 36px; height: 36px; font-size: 1rem; }
+        h3 { font-size: 0.85rem; }
+        .price { font-size: 0.9rem; }
+        .qty-selector, .add-to-cart-btn { height: 30px; }
+        .qty-btn, .qty-input, .add-to-cart-btn { width: 26px; }
     }
 </style>
