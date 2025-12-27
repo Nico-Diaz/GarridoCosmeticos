@@ -31,7 +31,7 @@ const bgColor = getCategoryColor(product.category);
         )}
     </div>
     
-    <div class="info">
+    <div class="info clickable">
         <div class="header">
             <h3 class="truncate">{product.name}</h3>
             {(product.oldPrice || product.isOffer) && <span class="badge">OFERTA</span>}
@@ -62,27 +62,48 @@ const bgColor = getCategoryColor(product.category);
             data-quantity="1" 
             aria-label="Agregar"
         >
-            + </button>
+            +
+        </button>
     </div>
 </article>
 
 <script>
     document.querySelectorAll('.product-row').forEach(row => {
+        // 1. Seleccionamos los elementos
         const minusBtn = row.querySelector('.minus');
         const plusBtn = row.querySelector('.plus');
         const input = row.querySelector('.qty-input');
         const addBtn = row.querySelector('.add-to-cart-btn');
+        
+        // Elementos para el acordeón (texto largo)
+        const infoDiv = row.querySelector('.info');
+        const title = row.querySelector('h3');
+        const code = row.querySelector('.code');
 
+        // 2. VERIFICACIÓN ESTRICTA (Esto arregla el error del dataset y value)
         if (
-            !minusBtn || !plusBtn || 
+            !minusBtn || 
+            !plusBtn || 
             !input || !(input instanceof HTMLInputElement) || 
-            !addBtn || !(addBtn instanceof HTMLElement)
-        ) return;
+            !addBtn || !(addBtn instanceof HTMLElement) 
+        ) {
+            return; // Si algo falla, paramos aquí para evitar errores
+        }
 
+        // --- LÓGICA DE TEXTO (Acordeón) ---
+        if (infoDiv && title && code) {
+            infoDiv.addEventListener('click', () => {
+                title.classList.toggle('expanded');
+                code.classList.toggle('expanded');
+            });
+        }
+
+        // --- LÓGICA DE CANTIDAD ---
         plusBtn.addEventListener('click', () => {
             let val = parseInt(input.value);
             val++;
             input.value = val.toString();
+            // Como ya verificamos que es HTMLElement, el editor permite usar dataset
             addBtn.dataset.quantity = val.toString();
         });
 
@@ -95,6 +116,7 @@ const bgColor = getCategoryColor(product.category);
             }
         });
         
+        // Resetear botón después de agregar
         addBtn.addEventListener('click', () => {
              setTimeout(() => {
                  input.value = "1";
@@ -107,47 +129,39 @@ const bgColor = getCategoryColor(product.category);
 <style>
     .product-row {
         display: flex;
-        align-items: center;
+        align-items: center; /* Centrado vertical */
         background: white;
-        padding: 0.8rem 0.5rem; /* Un poco menos de padding */
+        padding: 0.8rem 0.5rem;
         border-bottom: 1px solid #f0f0f0;
-        gap: 0.8rem; /* Menos espacio entre elementos */
-        
-        /* CAMBIO CLAVE 1: Evita que se rompa en varias líneas */
-        flex-wrap: nowrap; 
+        gap: 0.8rem;
+        flex-wrap: nowrap;
+        align-items: flex-start; /* Alineamos arriba para que si crece el texto, el icono quede arriba */
     }
 
-    /* CAMBIO CLAVE 2: Icono más pequeño */
     .thumb {
-        width: 40px; /* Antes 48px */
-        height: 40px; /* Antes 48px */
-        border-radius: 50%;
-        flex-shrink: 0; /* Evita que el icono se aplaste */
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        color: white;
-        font-family: var(--font-brand);
-        font-weight: bold;
-        font-size: 1.2rem; /* Letra un poco más chica */
+        width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; position: relative;
+        display: flex; align-items: center; justify-content: center; overflow: hidden;
+        color: white; font-family: var(--font-brand); font-weight: bold; font-size: 1.2rem;
+        margin-top: 2px; /* Pequeño ajuste para alinear con la primera línea de texto */
     }
-
     .thumb img { position: absolute; width: 100%; height: 100%; object-fit: cover; background: white; }
     
-    /* CAMBIO CLAVE 3: Manejo de texto largo */
     .info {
         flex-grow: 1;
-        min-width: 0; /* Necesario para que el truncado de texto funcione en flexbox */
+        min-width: 0;
         overflow: hidden;
+        cursor: pointer; /* Manito para indicar click */
+        user-select: none; /* Evita que se seleccione el texto al hacer click rápido */
     }
+
+    /* ESTILO PARA CUANDO SE TOCA (Efecto visual opcional) */
+    .info:active { opacity: 0.7; }
 
     .header { 
         display: flex; 
-        align-items: center; 
+        align-items: flex-start; /* Para que el badge no se estire */
         gap: 5px;
-        flex-wrap: nowrap; /* Mantiene el badge de oferta al lado del título */
+        flex-wrap: wrap; /* Permitimos wrap si se expande */
     }
 
     h3 {
@@ -156,13 +170,21 @@ const bgColor = getCategoryColor(product.category);
         color: var(--color-black);
         font-weight: 600;
         font-family: var(--font-body);
+        line-height: 1.3;
     }
 
-    /* Clase utilitaria para cortar texto con ... */
+    /* --- CLASES DE TRUNCADO Y EXPANSIÓN --- */
     .truncate {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: nowrap;      /* Obliga a una línea */
+        overflow: hidden;         /* Oculta lo que sobra */
+        text-overflow: ellipsis;  /* Pone los ... */
+        transition: all 0.2s ease; /* Animación suave no necesaria pero queda bien si hay cambios de color */
+    }
+
+    /* Cuando tiene esta clase, se muestra todo */
+    .truncate.expanded {
+        white-space: normal;      /* Permite múltiples líneas */
+        overflow: visible;        /* Muestra todo */
     }
 
     .code {
@@ -173,52 +195,34 @@ const bgColor = getCategoryColor(product.category);
         gap: 5px;
         margin-top: 2px;
     }
+
     .category-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
-    .badge { background-color: var(--color-accent); color: white; font-size: 0.55rem; padding: 1px 4px; border-radius: 4px; font-weight: bold; flex-shrink: 0; }
+    .badge { background-color: var(--color-accent); color: white; font-size: 0.55rem; padding: 1px 4px; border-radius: 4px; font-weight: bold; flex-shrink: 0; margin-top: 2px; }
 
     .actions {
         display: flex;
         align-items: center;
         gap: 0.5rem;
         margin-left: auto;
-        flex-shrink: 0; /* Evita que los precios y botones se aplasten */
+        flex-shrink: 0;
+        padding-top: 2px; /* Alineación visual con el texto */
     }
 
-    .prices {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        margin-right: 2px;
-    }
+    .prices { display: flex; flex-direction: column; align-items: flex-end; margin-right: 2px; }
     .price { font-weight: 700; color: var(--color-black); font-size: 1rem; }
     .old-price { font-size: 0.7rem; text-decoration: line-through; color: #aaa; }
 
-    /* Selector de cantidad más compacto */
     .qty-selector { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; height: 32px; }
     .qty-btn { background: #f9f9f9; border: none; width: 28px; height: 100%; font-weight: bold; cursor: pointer; color: var(--color-black); padding: 0; display: flex; align-items: center; justify-content: center;}
     .qty-input { width: 28px; height: 100%; border: none; text-align: center; font-size: 0.85rem; color: var(--color-black); outline: none; padding: 0; }
 
-    /* Botón de agregar más compacto (solo el +) */
     .add-to-cart-btn {
-        background: var(--color-black);
-        color: white;
-        border: none;
-        width: 32px; /* Cuadrado */
-        height: 32px;
-        border-radius: 4px;
-        font-size: 1.2rem; /* El + más grande */
-        font-weight: bold;
-        cursor: pointer;
-        transition: background 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        padding-bottom: 2px; /* Ajuste visual vertical */
+        background: var(--color-black); color: white; border: none; width: 32px; height: 32px;
+        border-radius: 4px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: background 0.2s;
+        display: flex; align-items: center; justify-content: center; padding: 0; padding-bottom: 2px;
     }
     .add-to-cart-btn:hover { background: var(--color-accent); }
 
-    /* Ajustes finos para pantallas MUY pequeñas (ej. iPhone SE) */
     @media (max-width: 380px) {
         .product-row { gap: 0.4rem; padding: 0.8rem 0.2rem; }
         .thumb { width: 36px; height: 36px; font-size: 1rem; }
