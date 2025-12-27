@@ -1,0 +1,123 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getProducts } from '../services/airtable';
+
+// Repetimos la interfaz para evitar errores en Admin también
+interface Product {
+    id: string;
+    name: string;
+    category: string;
+    price: number;
+    oldPrice?: number;
+    isOffer?: boolean;
+    image?: string;
+    airtableId?: string;
+}
+
+const secret = Astro.url.searchParams.get('pass');
+const isAuthorized = secret === 'garrido123';
+
+let products: Product[] = []; // Tipamos el array vacío
+if (isAuthorized) {
+    products = await getProducts();
+}
+---
+
+<Layout title="Admin - Garrido Beauty">
+    {!isAuthorized ? (
+        <div class="login-container">
+            <h1>Acceso Restringido</h1>
+            <p>Ingresa la contraseña en la URL.</p>
+            <a href="/" class="btn-back">Volver a la tienda</a>
+        </div>
+    ) : (
+        <div class="admin-container">
+            <header class="admin-header">
+                <h1>Panel de Control</h1>
+                <a href="/" target="_blank" class="btn-view">Ver Tienda</a>
+            </header>
+
+            <div class="admin-table-wrapper">
+                <table class="admin-table">
+                    <thead><tr><th>Producto</th><th>Precio</th><th>¿Oferta?</th><th>Acción</th></tr></thead>
+                    <tbody>
+                        {products.map(p => (
+                            <tr class="product-row" data-id={p.airtableId}>
+                                <td><span class="p-name">{p.name}</span><span class="p-code">#{p.id}</span></td>
+                                <td><input type="number" class="input-price" value={p.price} /></td>
+                                <td><input type="checkbox" class="input-offer" checked={p.isOffer} /><span class="offer-label">Sí</span></td>
+                                <td><button class="btn-save">Guardar</button></td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )}
+</Layout>
+
+<script>
+    const buttons = document.querySelectorAll('.btn-save');
+    
+    buttons.forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
+            // Aseguramos que el target es un elemento
+            const target = e.target as HTMLElement;
+            const row = target.closest('tr');
+            
+            if (!row) return;
+
+            // Tipamos row y inputs
+            const id = row.dataset.id;
+            const priceInput = row.querySelector('.input-price') as HTMLInputElement;
+            const offerInput = row.querySelector('.input-offer') as HTMLInputElement;
+
+            // Verificamos que existan antes de leer valores
+            if (!priceInput || !offerInput) return;
+
+            const price = priceInput.value;
+            const isOffer = offerInput.checked;
+            
+            const originalText = target.innerText;
+            target.innerText = '...';
+
+            try {
+                const res = await fetch('/api/update-product', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ id, price, isOffer })
+                });
+
+                if(res.ok) {
+                    target.innerText = '¡Listo!';
+                    target.style.backgroundColor = '#10B981';
+                    setTimeout(() => {
+                        target.innerText = originalText;
+                        target.style.backgroundColor = '';
+                    }, 2000);
+                } else {
+                    alert('Error al guardar');
+                }
+            } catch (error) {
+                alert('Error de conexión');
+            }
+        });
+    });
+</script>
+
+<style>
+    .login-container { text-align: center; padding: 4rem; }
+    .admin-container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid #eee; padding-bottom: 1rem; }
+    .admin-table-wrapper { background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow-x: auto; }
+    .admin-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    .admin-table th { text-align: left; padding: 1rem; background: #f9f9f9; border-bottom: 1px solid #ddd; font-family: var(--font-brand); }
+    .admin-table td { padding: 1rem; border-bottom: 1px solid #eee; vertical-align: middle; }
+    .p-name { display: block; font-weight: bold; font-size: 0.9rem; }
+    .p-code { font-size: 0.75rem; color: #888; }
+    .input-price { padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100px; font-size: 1rem; }
+    .btn-save { background: var(--color-black); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; transition: background 0.3s; }
+    .btn-save:hover { background: #333; }
+    .btn-view, .btn-back { text-decoration: none; background: var(--color-accent); color: white; padding: 8px 15px; border-radius: 4px; font-weight: bold; }
+    .offer-label { font-size: 0.8rem; margin-left: 5px; }
+</style>

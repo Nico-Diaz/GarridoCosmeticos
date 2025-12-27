@@ -1,0 +1,151 @@
+---
+const { product } = Astro.props;
+
+// Iniciales
+const initial = product.name ? product.name.charAt(0).toUpperCase() : '?';
+
+// Colores
+const getCategoryColor = (cat: string) => {
+    // 1. LIMPIEZA DE DATOS:
+    // Si Airtable manda un array ['Solar'], nos quedamos con 'Solar'.
+    const valorPuro = Array.isArray(cat) ? cat[0] : cat;
+    
+    // 2. Convertimos a texto y minúsculas de forma segura
+    const category = String(valorPuro || '').toLowerCase();
+
+    if (category.includes('solar')) return '#F59E0B';
+    if (category.includes('labios')) return '#E11D48';
+    if (category.includes('rostro') || category.includes('facial')) return '#EC4899';
+    if (category.includes('ojos')) return '#3B82F6';
+    if (category.includes('cuerpo') || category.includes('body')) return '#10B981';
+    if (category.includes('cabello') || category.includes('capilar')) return '#8B5CF6';
+    if (category.includes('fragancia') || category.includes('perfume')) return '#6366F1';
+    if (category.includes('uñas')) return '#F43F5E';
+    return '#525252';
+};
+
+const bgColor = getCategoryColor(product.category);
+---
+
+<article class="product-row" data-category={product.category}>
+    <div class="thumb" style={`background-color: ${bgColor};`}>
+        <span class="initial">{initial}</span>
+        {product.image && (
+            <img src={product.image} alt={product.name} onerror="this.style.display='none'" />
+        )}
+    </div>
+    
+    <div class="info">
+        <div class="header">
+            <h3>{product.name}</h3>
+            {(product.oldPrice || product.isOffer) && <span class="badge">OFERTA</span>}
+        </div>
+        <p class="code">
+            <span class="category-dot" style={`background-color: ${bgColor};`}></span>
+            {product.category || 'General'} • Cód: {product.id}
+        </p>
+    </div>
+
+    <div class="actions">
+        <div class="prices">
+            {product.oldPrice && <span class="old-price">${Number(product.oldPrice).toLocaleString('es-AR')}</span>}
+            <span class="price">${Number(product.price).toLocaleString('es-AR')}</span>
+        </div>
+        
+        <div class="qty-selector">
+            <button class="qty-btn minus" type="button">-</button>
+            <input type="text" value="1" readonly class="qty-input" />
+            <button class="qty-btn plus" type="button">+</button>
+        </div>
+
+        <button 
+            class="add-to-cart-btn"
+            data-id={product.id}
+            data-name={product.name}
+            data-price={product.price}
+            data-quantity="1" 
+            aria-label="Agregar"
+        >
+            AGREGAR
+        </button>
+    </div>
+</article>
+
+<script>
+    document.querySelectorAll('.product-row').forEach(row => {
+        const minusBtn = row.querySelector('.minus');
+        const plusBtn = row.querySelector('.plus');
+        const input = row.querySelector('.qty-input');
+        const addBtn = row.querySelector('.add-to-cart-btn');
+
+        // Verificación de seguridad para evitar errores del editor
+        if (
+            !minusBtn || !plusBtn || 
+            !input || !(input instanceof HTMLInputElement) || 
+            !addBtn || !(addBtn instanceof HTMLElement)
+        ) return;
+
+        plusBtn.addEventListener('click', () => {
+            let val = parseInt(input.value);
+            val++;
+            input.value = val.toString();
+            addBtn.dataset.quantity = val.toString();
+        });
+
+        minusBtn.addEventListener('click', () => {
+            let val = parseInt(input.value);
+            if (val > 1) {
+                val--;
+                input.value = val.toString();
+                addBtn.dataset.quantity = val.toString();
+            }
+        });
+        
+        addBtn.addEventListener('click', () => {
+             setTimeout(() => {
+                 input.value = "1";
+                 addBtn.dataset.quantity = "1";
+             }, 100);
+        });
+    });
+</script>
+
+<style>
+    .product-row {
+        display: flex;
+        align-items: center;
+        background: white;
+        padding: 1rem;
+        border-bottom: 1px solid #f0f0f0;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .thumb { width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; color: white; font-family: var(--font-brand); font-weight: bold; font-size: 1.5rem; }
+    .thumb img { position: absolute; width: 100%; height: 100%; object-fit: cover; background: white; }
+    
+    .info { flex-grow: 1; min-width: 200px; }
+    .header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    h3 { font-size: 1rem; margin: 0; color: var(--color-black); font-weight: 600; font-family: var(--font-body); }
+    .code { font-size: 0.75rem; color: #888; display: flex; align-items: center; gap: 5px; margin-top: 4px; }
+    .category-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .badge { background-color: var(--color-accent); color: white; font-size: 0.6rem; padding: 1px 6px; border-radius: 4px; font-weight: bold; }
+
+    .actions { display: flex; align-items: center; gap: 1rem; margin-left: auto; }
+    .prices { display: flex; flex-direction: column; align-items: flex-end; margin-right: 5px; }
+    .price { font-weight: 700; color: var(--color-black); }
+    .old-price { font-size: 0.75rem; text-decoration: line-through; color: #aaa; }
+
+    .qty-selector { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; }
+    .qty-btn { background: #f9f9f9; border: none; width: 30px; height: 36px; font-weight: bold; cursor: pointer; color: var(--color-black); }
+    .qty-btn:hover { background: #eee; }
+    .qty-input { width: 30px; height: 36px; border: none; text-align: center; font-size: 0.9rem; color: var(--color-black); outline: none; }
+
+    .add-to-cart-btn { background: var(--color-black); color: white; border: none; padding: 0 15px; height: 38px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    .add-to-cart-btn:hover { background: var(--color-accent); }
+
+    @media (max-width: 600px) {
+        .actions { width: 100%; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f9f9f9; }
+        .prices { align-items: flex-start; margin-right: 0; }
+    }
+</style>

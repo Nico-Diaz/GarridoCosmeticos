@@ -1,11 +1,109 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import ProductCard from '../components/ProductCard.astro';
+import Cart from '../components/Cart.jsx';
+import { getProducts } from '../services/airtable';
+interface Product {
+    id: string;
+    name: string;
+    category: string;
+    price: number;
+    oldPrice?: number;
+    isOffer?: boolean;
+    image?: string;
+    airtableId?: string;
+}
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// 2. Le decimos a la variable que es una lista de productos
+const products: Product[] = await getProducts();
+
+const categories = ['Todos', ...new Set(products.map((p) => p.category).filter(Boolean))];
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Garrido Beauty - Catálogo Online">
+	
+	<header class="main-header">
+		<div class="container">
+			<h1 class="logo">Garrido <span class="light">Cosméticos</span></h1>
+			<p class="tagline">TU BELLEZA, NUESTRA FIRMA</p>
+		</div>
+	</header>
+
+	<main class="container content-area">
+        <div class="filters-wrapper">
+            <div class="filters-scroll">
+                {categories.map((cat, index) => (
+                    <button class={`filter-btn ${index === 0 ? 'active' : ''}`} data-filter={cat}>{cat}</button>
+                ))}
+            </div>
+        </div>
+
+		<div class="product-list-container" id="product-list">
+			{products.map((product) => (
+				<ProductCard product={product} />
+			))}
+            <div id="no-results" style="display: none; padding: 2rem; text-align: center; color: #666;">
+                No hay productos en esta categoría.
+            </div>
+		</div>
+	</main>
+
+	<footer class="main-footer">
+		<p>© 2026 Garrido Beauty</p>
+	</footer>
+
+	<Cart client:load />
 </Layout>
+
+<script>
+    const buttons = document.querySelectorAll('.filter-btn');
+    // Forzamos el tipo NodeList de Elementos HTML
+    const products = document.querySelectorAll('.product-row');
+    const noResults = document.getElementById('no-results');
+
+    buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Aseguramos que btn es un HTMLElement para acceder a dataset
+            const categoryToFilter = (btn as HTMLElement).dataset.filter;
+            let visibleCount = 0;
+
+            products.forEach((row) => {
+                // AQUÍ ESTABA EL ERROR: Casteamos row como HTMLElement
+                const element = row as HTMLElement; 
+                const productCat = element.dataset.category || 'General';
+
+                if (categoryToFilter === 'Todos' || productCat === categoryToFilter) {
+                    element.style.display = ''; 
+                    visibleCount++;
+                } else {
+                    element.style.display = 'none';
+                }
+            });
+
+            if (noResults) noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+        });
+    });
+</script>
+
+<style>
+	.container { max-width: var(--container-width); margin: 0 auto; padding: 0 20px; }
+	.main-header { text-align: center; padding: 2rem 0; background: var(--color-white); border-bottom: 1px solid #eee; }
+	.logo { font-size: 3.5rem; line-height: 1; margin-bottom: 0.5rem; letter-spacing: -1px; color: var(--color-black); }
+    .light { font-weight: 400; color: var(--color-accent); }
+	.tagline { display: inline-block; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: #999; }
+	.content-area { padding: 1rem 20px 4rem 20px; }
+
+    .filters-wrapper { position: sticky; top: 0; background: var(--color-gray-bg); z-index: 10; padding: 1rem 0; margin-bottom: 1rem; }
+    .filters-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+    .filters-scroll::-webkit-scrollbar { display: none; }
+
+    .filter-btn { background: white; border: 1px solid #ddd; border-radius: 20px; padding: 8px 16px; white-space: nowrap; font-family: var(--font-body); font-size: 0.9rem; cursor: pointer; transition: all 0.3s; color: var(--color-gray-text); }
+    .filter-btn:hover { border-color: var(--color-black); color: var(--color-black); }
+    .filter-btn.active { background-color: var(--color-black); color: white; border-color: var(--color-black); font-weight: bold; }
+
+	.product-list-container { max-width: 800px; margin: 0 auto; background: white; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); overflow: hidden; }
+	.main-footer { background-color: var(--color-black); color: white; text-align: center; padding: 1.5rem; font-size: 0.8rem; margin-top: 3rem; }
+</style>

@@ -1,0 +1,776 @@
+[
+  {
+    "id": "101002",
+    "name": "Dermatology Sun Defense Protector Solar FPS 50 Crema Facial / 50 g",
+    "category": "Solar",
+    "price": 39999
+  },
+  {
+    "id": "101395",
+    "name": "Dermatology Sun Defense Protector Labial FPS 20 / 3,5 g",
+    "category": "Solar",
+    "price": 24999,
+    "oldPrice": 39999
+  },
+  {
+    "id": "101576",
+    "name": "Protector Solar con Color FPS 60 Light",
+    "category": "Solar",
+    "price": 24999,
+    "oldPrice": 39999
+  },
+  {
+    "id": "101577",
+    "name": "Protector Solar con Color FPS 60 Medium",
+    "category": "Solar",
+    "price": 24999,
+    "oldPrice": 39999
+  },
+  {
+    "id": "101235",
+    "name": "Agua de Rosas Bruma Facial 150 ml",
+    "category": "Rostro",
+    "price": 16999
+  },
+  {
+    "id": "100852",
+    "name": "AH+ Bruma Facial Doble Acción con Ácido Hialurónico",
+    "category": "Rostro",
+    "price": 19999
+  },
+  {
+    "id": "101605",
+    "name": "Milk Glow Emulsión Corporal Efecto Luminoso",
+    "category": "Cuerpo",
+    "price": 7999,
+    "oldPrice": 15999
+  },
+  {
+    "id": "100674",
+    "name": "Milk Crema Corporal con Aceite de Coco y Vitamina A",
+    "category": "Cuerpo",
+    "price": 7999,
+    "oldPrice": 15999
+  },
+  {
+    "id": "13307",
+    "name": "Shock de Keratina Spray Nutritivo Capilar",
+    "category": "Cabello",
+    "price": 6999,
+    "oldPrice": 12999
+  },
+  {
+    "id": "13356",
+    "name": "Shock de Keratina Tratamiento de Cauterización Molecular",
+    "category": "Cabello",
+    "price": 6999,
+    "oldPrice": 12999
+  },
+  {
+    "id": "100705",
+    "name": "You Labial Matte - 01 Nude",
+    "category": "Labios",
+    "price": 5999,
+    "oldPrice": 9999
+  },
+  {
+    "id": "101016",
+    "name": "You Labial Matte - 08 Violeta",
+    "category": "Labios",
+    "price": 5999,
+    "oldPrice": 9999
+  },
+  {
+    "id": "100708",
+    "name": "You Labial Matte - 04 Rojo",
+    "category": "Labios",
+    "price": 5999,
+    "oldPrice": 9999
+  },
+  {
+    "id": "100357",
+    "name": "Paraíso Tropical Eau de Toilette 60 ml",
+    "category": "Fragancias",
+    "price": 32999
+  },
+  {
+    "id": "101612",
+    "name": "Sex for Men Black Colonia Refrescante 260 ml",
+    "category": "Fragancias",
+    "price": 8999,
+    "oldPrice": 19999
+  },
+  {
+    "id": "101611",
+    "name": "Sex for Men Intense Colonia Refrescante 260 ml",
+    "category": "Fragancias",
+    "price": 8999,
+    "oldPrice": 19999
+  },
+  {
+    "id": "101795",
+    "name": "Lemon Pie Bálsamo Labial Hidratante",
+    "category": "Labios",
+    "price": 8999
+  },
+  {
+    "id": "101799",
+    "name": "Lemon Pie Crema Perfumada para Manos 30 g",
+    "category": "Cuerpo",
+    "price": 3599,
+    "oldPrice": 7999
+  },
+  {
+    "id": "204804",
+    "name": "Broche para Pelo Flor",
+    "category": "General",
+    "price": 12999
+  },
+  {
+    "id": "205270",
+    "name": "Neceser Lemon Amarelo",
+    "category": "General",
+    "price": 27999
+  },
+  {
+    "id": "407926",
+    "name": "Lona Playera Amarelo 145x70 cm",
+    "category": "General",
+    "price": 49999
+  },
+  {
+    "id": "205269",
+    "name": "Maxibolso Rayado Amarelo",
+    "category": "General",
+    "price": 14999,
+    "oldPrice": 66999
+  },
+  {
+    "id": "101085",
+    "name": "02 Verde Casual Cuarteto de Sombras Compactas",
+    "category": "Maquillaje",
+    "price": 21999
+  },
+  {
+    "id": "101338",
+    "name": "Casual Extreme Definition Máscara para Pestañas Waterproof",
+    "category": "Maquillaje",
+    "price": 19999
+  },
+  {
+    "id": "407725",
+    "name": "Arqueador de Pestañas con Repuesto",
+    "category": "Maquillaje",
+    "price": 5999,
+    "oldPrice": 9999
+  },
+  {
+    "id": "101670",
+    "name": "Casual Maquillaje Corrector Óptico",
+    "category": "Maquillaje",
+    "price": 7999,
+    "oldPrice": 14999
+  },
+  {
+    "id": "407726",
+    "name": "Beauty Blender Mini x 4",
+    "category": "Maquillaje",
+    "price": 9499
+  },
+  {
+    "id": "407727",
+    "name": "Beauty Blender Set",
+    "category": "Maquillaje",
+    "price": 3999,
+    "oldPrice": 6999
+  },
+  {
+    "id": "101614",
+    "name": "02 Cherry Boom Labial y Rubor",
+    "category": "Labios",
+    "price": 8999
+  },
+  {
+    "id": "21311",
+    "name": "Protect Quitaesmalte Humecto Nutritivo 120 ml",
+    "category": "Uñas",
+    "price": 16999
+  },
+  {
+    "id": "21327",
+    "name": "Protect Alargador para Uñas Anti Roturas",
+    "category": "Uñas",
+    "price": 8999
+  },
+  {
+    "id": "21328",
+    "name": "Protect Manicuría Francesa Set",
+    "category": "Uñas",
+    "price": 8999
+  },
+  {
+    "id": "100331",
+    "name": "Protect Fast Dry Top Coat para Uñas",
+    "category": "Uñas",
+    "price": 8999
+  },
+  {
+    "id": "101712",
+    "name": "Mask Mascarilla para Labios Con Colágeno",
+    "category": "Labios",
+    "price": 2999,
+    "oldPrice": 4999
+  },
+  {
+    "id": "101769",
+    "name": "Mask Banda para Remover Puntos Negros",
+    "category": "Rostro",
+    "price": 2999,
+    "oldPrice": 4999
+  },
+  {
+    "id": "32233",
+    "name": "Pomelo Natural Desmaquillante Bifásico",
+    "category": "Rostro",
+    "price": 18999
+  },
+  {
+    "id": "100441",
+    "name": "Pomelo Natural Crema Hidratante Efecto Mate",
+    "category": "Rostro",
+    "price": 9999
+  },
+  {
+    "id": "32232",
+    "name": "Pomelo Natural Loción Astringente Equilibrante",
+    "category": "Rostro",
+    "price": 15999
+  },
+  {
+    "id": "32228",
+    "name": "Pomelo Natural Jabón de Limpieza Facial",
+    "category": "Rostro",
+    "price": 8999,
+    "oldPrice": 12999
+  },
+  {
+    "id": "100572",
+    "name": "Pomelo Natural Toallas Húmedas Desmaquillantes",
+    "category": "Rostro",
+    "price": 9999
+  },
+  {
+    "id": "101517",
+    "name": "Clear Face Astringente de Limpieza Profunda",
+    "category": "Rostro",
+    "price": 14999
+  },
+  {
+    "id": "101511",
+    "name": "Clear Face Espuma de Limpieza Facial",
+    "category": "Rostro",
+    "price": 7999,
+    "oldPrice": 14999
+  },
+  {
+    "id": "101533",
+    "name": "Clear Face Gel Tratante Nocturno 70 g",
+    "category": "Rostro",
+    "price": 9999,
+    "oldPrice": 14999
+  },
+  {
+    "id": "101513",
+    "name": "Clear Face Barra Secativa",
+    "category": "Rostro",
+    "price": 6999,
+    "oldPrice": 12999
+  },
+  {
+    "id": "100924",
+    "name": "Be Vegan Suero Antiarrugas Antioxidante",
+    "category": "Rostro",
+    "price": 22999
+  },
+  {
+    "id": "101197",
+    "name": "Be Vegan Spray Nutritivo para Cabellos Dañados",
+    "category": "Cabello",
+    "price": 14999
+  },
+  {
+    "id": "101132",
+    "name": "Be Vegan Crema para el Cuerpo 300 g",
+    "category": "Cuerpo",
+    "price": 24999
+  },
+  {
+    "id": "100923",
+    "name": "Be Vegan Crema Hidratante Regeneradora",
+    "category": "Rostro",
+    "price": 19999
+  },
+  {
+    "id": "100925",
+    "name": "Be Vegan Leche de Limpieza 150 ml",
+    "category": "Rostro",
+    "price": 16999
+  },
+  {
+    "id": "101123",
+    "name": "Avena Crema para Rostro 80 g",
+    "category": "Rostro",
+    "price": 19999
+  },
+  {
+    "id": "101122",
+    "name": "Avena Leche de Limpieza Desmaquillante",
+    "category": "Rostro",
+    "price": 19999
+  },
+  {
+    "id": "101121",
+    "name": "Avena Crema para Manos 110 g",
+    "category": "Cuerpo",
+    "price": 12999
+  },
+  {
+    "id": "101284",
+    "name": "Avena Crema para el Cuerpo 300 ml",
+    "category": "Cuerpo",
+    "price": 21999
+  },
+  {
+    "id": "101130",
+    "name": "Dermatology Total Balance Crema de Noche",
+    "category": "Rostro",
+    "price": 42999
+  },
+  {
+    "id": "101129",
+    "name": "Dermatology Total Balance Crema de Día FPS 30",
+    "category": "Rostro",
+    "price": 47999
+  },
+  {
+    "id": "100885",
+    "name": "Dermatology Total Skin Crema de Noche Renovación",
+    "category": "Rostro",
+    "price": 26999
+  },
+  {
+    "id": "101302",
+    "name": "Dermatology Total Skin Tratamiento Dual Ojos y Labios",
+    "category": "Rostro",
+    "price": 34999
+  },
+  {
+    "id": "101112",
+    "name": "Specific Labios y Áreas Resecas Crema Regeneradora",
+    "category": "Rostro",
+    "price": 13999
+  },
+  {
+    "id": "100983",
+    "name": "Specific Concentrado Antifatiga para Ojos",
+    "category": "Rostro",
+    "price": 13999
+  },
+  {
+    "id": "101455",
+    "name": "Sentidos Gel de Ducha Lluvia Primaveral",
+    "category": "Cuerpo",
+    "price": 22999
+  },
+  {
+    "id": "101454",
+    "name": "Sentidos Loción Corporal Despertar Renovador",
+    "category": "Cuerpo",
+    "price": 22999
+  },
+  {
+    "id": "101456",
+    "name": "Sentidos Loción Corporal Abrazos del Bosque",
+    "category": "Cuerpo",
+    "price": 22999
+  },
+  {
+    "id": "101457",
+    "name": "Sentidos Gel de Ducha Respiro en Equilibrio",
+    "category": "Cuerpo",
+    "price": 22999
+  },
+  {
+    "id": "101458",
+    "name": "Sentidos Crema Corporal Dulces Sueños",
+    "category": "Cuerpo",
+    "price": 14999,
+    "oldPrice": 22999
+  },
+  {
+    "id": "101582",
+    "name": "Velvety Body Oil Sérum para Vellos Encarnados",
+    "category": "Cuerpo",
+    "price": 15999
+  },
+  {
+    "id": "100633",
+    "name": "Velvety Cera Depilatoria con Manteca de Karité",
+    "category": "Cuerpo",
+    "price": 19999
+  },
+  {
+    "id": "101672",
+    "name": "Viogina Gel Lubricante",
+    "category": "Cuerpo",
+    "price": 8999
+  },
+  {
+    "id": "101671",
+    "name": "Viogina Jabón Líquido Intimo",
+    "category": "Cuerpo",
+    "price": 7999,
+    "oldPrice": 14999
+  },
+  {
+    "id": "204741",
+    "name": "Neceser de Viaje Ajustable",
+    "category": "General",
+    "price": 34999
+  },
+  {
+    "id": "407384",
+    "name": "Velvety Luxe Pocket Máquina de Afeitar",
+    "category": "Cuerpo",
+    "price": 32999
+  },
+  {
+    "id": "407399",
+    "name": "Smile Care Cepillo de Dientes Mini",
+    "category": "General",
+    "price": 7499
+  },
+  {
+    "id": "407956",
+    "name": "Set de Viaje",
+    "category": "General",
+    "price": 25999
+  },
+  {
+    "id": "101252",
+    "name": "Kiss Me Red Eau de Toilette 55 ml",
+    "category": "Fragancias",
+    "price": 24999,
+    "oldPrice": 39999
+  },
+  {
+    "id": "101253",
+    "name": "Kiss Me Pink Eau de Toilette 55 ml",
+    "category": "Fragancias",
+    "price": 24999,
+    "oldPrice": 39999
+  },
+  {
+    "id": "101254",
+    "name": "Kiss Me Nude Eau de Toilette 55 ml",
+    "category": "Fragancias",
+    "price": 24999,
+    "oldPrice": 39999
+  },
+  {
+    "id": "100801",
+    "name": "Magic Love Eau de Toilette 50 ml",
+    "category": "Fragancias",
+    "price": 35999
+  },
+  {
+    "id": "43170",
+    "name": "Capriccio Eau de Toilette 45 ml",
+    "category": "Fragancias",
+    "price": 29999
+  },
+  {
+    "id": "100857",
+    "name": "Lovers Eau de Toilette 55 ml",
+    "category": "Fragancias",
+    "price": 35999
+  },
+  {
+    "id": "101556",
+    "name": "Blend Cítrico Colonia",
+    "category": "Fragancias",
+    "price": 15999
+  },
+  {
+    "id": "101595",
+    "name": "Sweet Vanilla Fragancia",
+    "category": "Fragancias",
+    "price": 9999,
+    "oldPrice": 14999
+  },
+  {
+    "id": "43243",
+    "name": "Red Hell Eau de Toilette 55 ml",
+    "category": "Fragancias",
+    "price": 19999,
+    "oldPrice": 39999
+  },
+  {
+    "id": "100391",
+    "name": "Homme Sport Extreme Eau de Toilette 50 ml",
+    "category": "Fragancias",
+    "price": 25999
+  },
+  {
+    "id": "43275",
+    "name": "Homme Sport Eau de Toilette 50 ml",
+    "category": "Fragancias",
+    "price": 25999
+  },
+  {
+    "id": "100998",
+    "name": "Homme Sport Savage Eau de Toilette 50 ml",
+    "category": "Fragancias",
+    "price": 25999
+  },
+  {
+    "id": "101290",
+    "name": "Supreme Eau de Parfum 100 ml",
+    "category": "Fragancias",
+    "price": 25999,
+    "oldPrice": 45999
+  },
+  {
+    "id": "101563",
+    "name": "Deep Earth Eau de Toilette 100 ml",
+    "category": "Fragancias",
+    "price": 39999
+  },
+  {
+    "id": "101602",
+    "name": "Shock Tratante Capilar Ampolla Nutrición",
+    "category": "Cabello",
+    "price": 6999,
+    "oldPrice": 7999
+  },
+  {
+    "id": "101601",
+    "name": "Shock Tratante Capilar Ampolla Brillo",
+    "category": "Cabello",
+    "price": 6999
+  },
+  {
+    "id": "100932",
+    "name": "Cosmo Violetta Toys Colonia Infantil",
+    "category": "Fragancias",
+    "price": 19999
+  },
+  {
+    "id": "100746",
+    "name": "Pompón Colonia Infantil",
+    "category": "Fragancias",
+    "price": 11999,
+    "oldPrice": 19999
+  },
+  {
+    "id": "101684",
+    "name": "Hit Girls Obsession Fragrance Mist Infantil",
+    "category": "Fragancias",
+    "price": 17999
+  },
+  {
+    "id": "101686",
+    "name": "Hit Boy Eau de Toilette Infantil",
+    "category": "Fragancias",
+    "price": 19999
+  },
+  {
+    "id": "205273",
+    "name": "Estuche para Anteojos Glow",
+    "category": "General",
+    "price": 25999
+  },
+  {
+    "id": "302732",
+    "name": "Colgante para Anteojos Eslabones",
+    "category": "General",
+    "price": 23999
+  },
+  {
+    "id": "205272",
+    "name": "Neceser Cristal Love con Pompón",
+    "category": "General",
+    "price": 36999
+  },
+  {
+    "id": "205271",
+    "name": "Funda Cristal para Celular Summer",
+    "category": "General",
+    "price": 6499,
+    "oldPrice": 10999
+  },
+  {
+    "id": "900734",
+    "name": "Mochila Black & White",
+    "category": "General",
+    "price": 129999
+  },
+  {
+    "id": "204017",
+    "name": "Colitas para el Pelo x 6 Sofi",
+    "category": "General",
+    "price": 3999
+  },
+  {
+    "id": "204579",
+    "name": "Set Argollitas para Cabello x 6 Wendy",
+    "category": "General",
+    "price": 7499
+  },
+  {
+    "id": "203536",
+    "name": "Pétalos Autoadhesivos para Cuerpo x 4",
+    "category": "Cuerpo",
+    "price": 10999,
+    "oldPrice": 14999
+  },
+  {
+    "id": "201239",
+    "name": "Accesorio Extensor de Escote",
+    "category": "General",
+    "price": 7499
+  },
+  {
+    "id": "202756",
+    "name": "Set x 2 Breteles Siliconados",
+    "category": "General",
+    "price": 3999
+  },
+  {
+    "id": "205238",
+    "name": "Bandolera Camile Negra",
+    "category": "General",
+    "price": 51999
+  },
+  {
+    "id": "407513",
+    "name": "Cepillo para Cartera con Espejo",
+    "category": "General",
+    "price": 8999
+  },
+  {
+    "id": "407929",
+    "name": "Provoleta de Hierro",
+    "category": "General",
+    "price": 51999
+  },
+  {
+    "id": "407341",
+    "name": "Planchetita 1 Hornalla con Tapa",
+    "category": "General",
+    "price": 89999
+  },
+  {
+    "id": "407930",
+    "name": "Pala para Plancha",
+    "category": "General",
+    "price": 15999
+  },
+  {
+    "id": "407932",
+    "name": "Molde para Hamburguesa",
+    "category": "General",
+    "price": 19999
+  },
+  {
+    "id": "407931",
+    "name": "Aro Circular para Huevo Frito",
+    "category": "General",
+    "price": 6499
+  },
+  {
+    "id": "407128",
+    "name": "Vaso Viajero 800 ml",
+    "category": "General",
+    "price": 6999
+  },
+  {
+    "id": "406430",
+    "name": "Recipientes Salseros x 3 Trento",
+    "category": "General",
+    "price": 7999
+  },
+  {
+    "id": "403582",
+    "name": "Untador x 3 Design",
+    "category": "General",
+    "price": 3599
+  },
+  {
+    "id": "46739",
+    "name": "Copetinero Plástico Negro",
+    "category": "General",
+    "price": 6599
+  },
+  {
+    "id": "405585",
+    "name": "Pinches para Picada x 8",
+    "category": "General",
+    "price": 4499
+  },
+  {
+    "id": "401343",
+    "name": "Plato para Empanada x 4",
+    "category": "General",
+    "price": 5199
+  },
+  {
+    "id": "402841",
+    "name": "Tabla para Picar Flex Pastello",
+    "category": "General",
+    "price": 9599
+  },
+  {
+    "id": "407961",
+    "name": "Set x 3 Especieros Kira",
+    "category": "General",
+    "price": 8999
+  },
+  {
+    "id": "401344",
+    "name": "Molde para Empanadas",
+    "category": "General",
+    "price": 6599
+  },
+  {
+    "id": "407472",
+    "name": "Fuente con Tapa Redonda 2,3 L",
+    "category": "General",
+    "price": 72999
+  },
+  {
+    "id": "407721",
+    "name": "Tarro Hermético 1,8 L",
+    "category": "General",
+    "price": 32999
+  },
+  {
+    "id": "407720",
+    "name": "Tarro Hermético 1,4 L",
+    "category": "General",
+    "price": 29999
+  },
+  {
+    "id": "407718",
+    "name": "Tarro Hermético 700 ml",
+    "category": "General",
+    "price": 14999,
+    "oldPrice": 25999
+  },
+  {
+    "id": "407722",
+    "name": "Tarro Hermético 2,5 L",
+    "category": "General",
+    "price": 37999
+  }
+]
