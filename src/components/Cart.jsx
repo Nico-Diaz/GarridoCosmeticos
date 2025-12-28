@@ -4,47 +4,63 @@ import { isCartOpen, cartItems, removeCartItem, updateQuantity } from '../stores
 import './Cart.css';
 
 export default function Cart() {
-    // Hooks de estado
+    // Hooks de estado y tienda
     const $isCartOpen = useStore(isCartOpen);
     const $cartItems = useStore(cartItems);
     const [isLoading, setIsLoading] = useState(false);
     
-    // Convertir mapa de productos a array para poder recorrerlo
+    // Convertir el objeto de productos a un array para poder recorrerlo
     const itemsArray = Object.values($cartItems);
 
     // Calcular totales
     const total = itemsArray.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const totalItems = itemsArray.reduce((acc, item) => acc + item.quantity, 0);
 
-    // Función principal: Guardar en Airtable + WhatsApp
+    // --- FUNCIÓN PRINCIPAL DE CHECKOUT ---
     const handleCheckout = async () => {
-        setIsLoading(true); // Bloquear botón
+        setIsLoading(true); // Activar modo "cargando"
 
-        // 1. Preparar resumen para Airtable
+        // 1. Preparar el resumen de productos para Airtable
         const productsSummary = itemsArray
             .map(item => `${item.name} (x${item.quantity})`)
             .join(', ');
 
+        // Debug: Ver en la consola del navegador qué estamos enviando
+        console.log("🛒 Enviando a Airtable:", { products: productsSummary, total: total });
+
         try {
-            // Intentar guardar en Airtable vía nuestra API
-            await fetch('/api/createOrder', {
+            // 2. Enviar a nuestra API (Backend)
+            const response = await fetch('/api/createOrder', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json' 
+                },
+                // ¡AQUÍ ESTABA EL ERROR ANTES! AHORA ESTÁ CORREGIDO:
                 body: JSON.stringify({
                     products: productsSummary,
                     total: total
                 })
             });
+
+            // Leer respuesta del servidor (sin romper si falla)
+            const resultText = await response.text();
+            
+            if (!response.ok) {
+                console.error("⚠️ Airtable reportó un problema:", resultText);
+            } else {
+                console.log("✅ Pedido guardado en Airtable:", resultText);
+            }
+
         } catch (error) {
-            console.error("Error guardando pedido en base de datos:", error);
-            // No detenemos el flujo si falla Airtable, priorizamos la venta por WhatsApp
+            console.error("❌ Error de conexión con la API:", error);
+            // No detenemos el flujo, seguimos hacia WhatsApp para no perder la venta
         }
 
-        // 2. Configurar mensaje de WhatsApp
-        // ¡IMPORTANTE! CAMBIA ESTE NÚMERO POR EL TUYO REAL
+        // 3. Configurar Mensaje de WhatsApp
+        // ⚠️ IMPORTANTE: REEMPLAZA ESTO CON TU NÚMERO REAL
         const phoneNumber = "5492612461691"; 
         
-        let message = "Hola Garrido Beauty! Quiero realizar el siguiente pedido:\n\n";
+        let message = "Hola Garrido Beauty! 👋 Quiero realizar el siguiente pedido:\n\n";
         
         itemsArray.forEach(item => {
             const subtotal = item.price * item.quantity;
@@ -54,16 +70,16 @@ export default function Cart() {
         message += `\n*Total Final: $${total.toLocaleString('es-AR')}*`;
         message += "\n\nQuedo a la espera de los datos para el pago/envío. Gracias!";
 
-        // 3. Abrir WhatsApp
+        // 4. Abrir WhatsApp
         const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
         
-        setIsLoading(false); // Desbloquear botón
+        setIsLoading(false); // Desactivar modo "cargando"
         window.open(url, '_blank');
     };
 
     return (
         <>
-            {/* BOTÓN FLOTANTE */}
+            {/* BOTÓN FLOTANTE DEL CARRITO */}
             <button 
                 className="cart-trigger" 
                 onClick={() => isCartOpen.set(!$isCartOpen)}
@@ -106,18 +122,20 @@ export default function Cart() {
                         <span>Total:</span>
                         <span>${total.toLocaleString('es-AR')}</span>
                     </div>
+                    
+                    {/* BOTÓN DE ENVIAR */}
                     <button 
                         className="checkout-btn" 
                         disabled={itemsArray.length === 0 || isLoading}
                         onClick={handleCheckout}
                         style={{ opacity: isLoading ? 0.7 : 1, cursor: isLoading ? 'wait' : 'pointer' }}
                     >
-                        {isLoading ? "Procesando..." : "ENVIAR PEDIDO POR WHATSAPP"}
+                        {isLoading ? "Guardando..." : "ENVIAR PEDIDO POR WHATSAPP 📲"}
                     </button>
                 </div>
             </div>
             
-            {/* FONDO OSCURO (OVERLAY) */}
+            {/* FONDO OSCURO (Overlay para cerrar al hacer click fuera) */}
             {$isCartOpen && <div className="cart-overlay" onClick={() => isCartOpen.set(false)}></div>}
         </>
     );
