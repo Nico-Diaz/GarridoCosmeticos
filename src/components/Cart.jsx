@@ -42,7 +42,7 @@ export default function Cart() {
 
         // 2. Configurar mensaje de WhatsApp
         // ¡IMPORTANTE! CAMBIA ESTE NÚMERO POR EL TUYO REAL
-        const phoneNumber = "549xxxxxxxxxx"; 
+        const phoneNumber = "5492612461691"; 
         
         let message = "Hola Garrido Beauty! Quiero realizar el siguiente pedido:\n\n";
         
