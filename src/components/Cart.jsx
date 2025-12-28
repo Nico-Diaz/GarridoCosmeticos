@@ -14,10 +14,8 @@ export default function Cart() {
 
     // --- FUNCIÓN PARA ENVIAR A WHATSAPP ---
     const handleCheckout = () => {
-        // 1. TU NÚMERO DE TELÉFONO
-        // Formato: Código país (54) + 9 + código área (sin 0) + número (sin 15)
-        // Ejemplo para Mendoza: 5492611234567
-        const phoneNumber = "5492610000000"; // <--- ¡CAMBIA ESTO POR TU NÚMERO REAL!
+
+        const phoneNumber = "542612461691"; 
 
         // 2. CONSTRUIR EL MENSAJE
         let message = "Hola Garrido Beauty! 👋 Quiero realizar el siguiente pedido:\n\n";
@@ -84,7 +82,7 @@ export default function Cart() {
                         disabled={itemsArray.length === 0}
                         onClick={handleCheckout}
                     >
-                        ENVIAR PEDIDO POR WHATSAPP 📲
+                        ENVIAR PEDIDO POR WHATSAPP
                     </button>
                 </div>
             </div>
