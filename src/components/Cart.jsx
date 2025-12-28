@@ -1,41 +1,69 @@
+import { useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { isCartOpen, cartItems, removeCartItem, updateQuantity } from '../stores/cartStore';
 import './Cart.css';
 
 export default function Cart() {
+    // Hooks de estado
     const $isCartOpen = useStore(isCartOpen);
     const $cartItems = useStore(cartItems);
+    const [isLoading, setIsLoading] = useState(false);
     
+    // Convertir mapa de productos a array para poder recorrerlo
     const itemsArray = Object.values($cartItems);
 
     // Calcular totales
     const total = itemsArray.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const totalItems = itemsArray.reduce((acc, item) => acc + item.quantity, 0);
 
-    // --- FUNCIÓN PARA ENVIAR A WHATSAPP ---
-    const handleCheckout = () => {
+    // Función principal: Guardar en Airtable + WhatsApp
+    const handleCheckout = async () => {
+        setIsLoading(true); // Bloquear botón
 
-        const phoneNumber = "542612461691"; 
+        // 1. Preparar resumen para Airtable
+        const productsSummary = itemsArray
+            .map(item => `${item.name} (x${item.quantity})`)
+            .join(', ');
 
-        // 2. CONSTRUIR EL MENSAJE
-        let message = "Hola Garrido Beauty! 👋 Quiero realizar el siguiente pedido:\n\n";
+        try {
+            // Intentar guardar en Airtable vía nuestra API
+            await fetch('/api/createOrder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    products: productsSummary,
+                    total: total
+                })
+            });
+        } catch (error) {
+            console.error("Error guardando pedido en base de datos:", error);
+            // No detenemos el flujo si falla Airtable, priorizamos la venta por WhatsApp
+        }
 
+        // 2. Configurar mensaje de WhatsApp
+        // ¡IMPORTANTE! CAMBIA ESTE NÚMERO POR EL TUYO REAL
+        const phoneNumber = "549xxxxxxxxxx"; 
+        
+        let message = "Hola Garrido Beauty! Quiero realizar el siguiente pedido:\n\n";
+        
         itemsArray.forEach(item => {
             const subtotal = item.price * item.quantity;
-            // Formato: - Nombre Producto (x2): $Precio
             message += `- *${item.name}* (x${item.quantity}): $${subtotal.toLocaleString('es-AR')}\n`;
         });
 
         message += `\n*Total Final: $${total.toLocaleString('es-AR')}*`;
         message += "\n\nQuedo a la espera de los datos para el pago/envío. Gracias!";
 
-        // 3. CODIFICAR URL Y ABRIR WHATSAPP
+        // 3. Abrir WhatsApp
         const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        
+        setIsLoading(false); // Desbloquear botón
         window.open(url, '_blank');
     };
 
     return (
         <>
+            {/* BOTÓN FLOTANTE */}
             <button 
                 className="cart-trigger" 
                 onClick={() => isCartOpen.set(!$isCartOpen)}
@@ -45,6 +73,7 @@ export default function Cart() {
                 {totalItems > 0 && <span className="cart-count">{totalItems}</span>}
             </button>
 
+            {/* PANEL LATERAL (DRAWER) */}
             <div className={`cart-drawer ${$isCartOpen ? 'open' : ''}`}>
                 <div className="cart-header">
                     <h2>Tu Pedido</h2>
@@ -79,14 +108,16 @@ export default function Cart() {
                     </div>
                     <button 
                         className="checkout-btn" 
-                        disabled={itemsArray.length === 0}
+                        disabled={itemsArray.length === 0 || isLoading}
                         onClick={handleCheckout}
+                        style={{ opacity: isLoading ? 0.7 : 1, cursor: isLoading ? 'wait' : 'pointer' }}
                     >
-                        ENVIAR PEDIDO POR WHATSAPP
+                        {isLoading ? "Procesando..." : "ENVIAR PEDIDO POR WHATSAPP"}
                     </button>
                 </div>
             </div>
             
+            {/* FONDO OSCURO (OVERLAY) */}
             {$isCartOpen && <div className="cart-overlay" onClick={() => isCartOpen.set(false)}></div>}
         </>
     );
