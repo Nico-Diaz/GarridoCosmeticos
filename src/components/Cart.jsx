@@ -1,134 +1,86 @@
-import { useState, useEffect } from 'preact/hooks';
-import '../styles/cart.css'; 
+import { useStore } from '@nanostores/react';
+import { isCartOpen, cartItems, removeCartItem, updateQuantity } from '../stores/cartStore';
+import './Cart.css'; // Crearemos los estilos en el paso 4
 
 export default function Cart() {
-    const [cart, setCart] = useState([]);
-    const [isOpen, setIsOpen] = useState(false);
-    const [clientData, setClientData] = useState({ name: '', phone: '' });
-    const [loading, setLoading] = useState(false);
+    const $isCartOpen = useStore(isCartOpen);
+    const $cartItems = useStore(cartItems);
+    
+    // Convertimos el objeto de items a un array para poder recorrerlo
+    const itemsArray = Object.values($cartItems);
 
-    useEffect(() => {
-        const handleAdd = (e) => {
-            const btn = e.target.closest('.add-to-cart-btn');
-            if (!btn) return;
+    // Calcular total
+    const total = itemsArray.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const totalItems = itemsArray.reduce((acc, item) => acc + item.quantity, 0);
 
-            const quantity = parseInt(btn.dataset.quantity) || 1;
-            const item = {
-                id: btn.dataset.id,
-                name: btn.dataset.name,
-                price: Number(btn.dataset.price),
-                quantity: quantity
-            };
-
-            setCart(prevCart => {
-                const existingItemIndex = prevCart.findIndex(i => i.id === item.id);
-                if (existingItemIndex >= 0) {
-                    const newCart = [...prevCart];
-                    newCart[existingItemIndex].quantity += quantity;
-                    return newCart;
-                } else {
-                    return [...prevCart, item];
-                }
-            });
-            setIsOpen(true);
-        };
-
-        document.addEventListener('click', handleAdd);
-        return () => document.removeEventListener('click', handleAdd);
-    }, []);
-
-    const removeFromCart = (indexToRemove) => {
-        setCart(prevCart => prevCart.filter((_, index) => index !== indexToRemove));
-        if (cart.length === 1) setIsOpen(false);
+    // Generar mensaje de WhatsApp
+    const handleCheckout = () => {
+        let message = "Hola! Quiero realizar el siguiente pedido:\n\n";
+        itemsArray.forEach(item => {
+            message += `- ${item.name} (x${item.quantity}): $${(item.price * item.quantity).toLocaleString('es-AR')}\n`;
+        });
+        message += `\n*Total: $${total.toLocaleString('es-AR')}*`;
+        
+        const phoneNumber = "549xxxxxxxxxx"; // PON TU NÚMERO AQUÍ
+        window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
     };
-
-    const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (cart.length === 0) return;
-        setLoading(true);
-
-        const orderText = cart.map(i => `${i.name} (x${i.quantity})`).join(', ');
-
-        try {
-            const res = await fetch('/api/create-order', {
-                method: 'POST',
-                body: JSON.stringify({
-                    cliente: clientData.name,
-                    telefono: clientData.phone,
-                    pedido: orderText,
-                    total: total
-                })
-            });
-
-            if (res.ok) {
-                alert('¡Pedido enviado! Gracias por elegir Garrido Beauty.');
-                setCart([]);
-                setIsOpen(false);
-            } else {
-                alert('Hubo un error al enviar el pedido.');
-            }
-        } catch (err) {
-            console.error(err);
-            alert('Error de conexión');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (!isOpen && cart.length === 0) return null;
 
     return (
         <>
-            <button class="cart-trigger" onClick={() => setIsOpen(true)}>
-                🛒 <span class="cart-count">{cart.reduce((a, b) => a + b.quantity, 0)}</span>
+            {/* BOTÓN FLOTANTE (Siempre visible) */}
+            <button 
+                className="cart-trigger" 
+                onClick={() => isCartOpen.set(!$isCartOpen)}
+            >
+                🛒
+                {totalItems > 0 && <span className="cart-count">{totalItems}</span>}
             </button>
 
-            {isOpen && (
-                <div class="cart-overlay">
-                    <div class="cart-sidebar">
-                        <div class="cart-header">
-                            <h2>Tu Pedido</h2>
-                            <button class="btn-close" onClick={() => setIsOpen(false)}>✕</button>
-                        </div>
-
-                        <ul class="cart-list">
-                            {cart.length === 0 ? <p>Carrito vacío.</p> : 
-                                cart.map((item, index) => (
-                                    <li key={index} class="cart-item">
-                                        <div class="item-info">
-                                            <span class="item-name">
-                                                {item.name} <span class="qty-badge">x{item.quantity}</span>
-                                            </span>
-                                            <div class="price-row">
-                                                <small class="unit-price">${item.price.toLocaleString('es-AR')} c/u</small>
-                                                <strong class="item-total-price">${(item.price * item.quantity).toLocaleString('es-AR')}</strong>
-                                            </div>
-                                        </div>
-                                        <button class="btn-remove" onClick={() => removeFromCart(index)}>✕</button>
-                                    </li>
-                                ))
-                            }
-                        </ul>
-
-                        <div class="cart-total">
-                            <span>Total:</span>
-                            <span>${total.toLocaleString('es-AR')}</span>
-                        </div>
-
-                        <form class="cart-form" onSubmit={handleSubmit}>
-                            <input type="text" placeholder="Nombre completo" class="cart-input" required
-                                value={clientData.name} onInput={(e) => setClientData({...clientData, name: e.target.value})} />
-                            <input type="tel" placeholder="WhatsApp / Teléfono" class="cart-input" required
-                                value={clientData.phone} onInput={(e) => setClientData({...clientData, phone: e.target.value})} />
-                            <button type="submit" class="btn-confirm" disabled={loading}>
-                                {loading ? 'Enviando...' : 'Confirmar Pedido'}
-                            </button>
-                        </form>
-                    </div>
+            {/* PANEL LATERAL DEL CARRITO */}
+            <div className={`cart-drawer ${$isCartOpen ? 'open' : ''}`}>
+                <div className="cart-header">
+                    <h2>Tu Pedido</h2>
+                    <button onClick={() => isCartOpen.set(false)} className="close-btn">×</button>
                 </div>
-            )}
+
+                <div className="cart-body">
+                    {itemsArray.length === 0 ? (
+                        <p className="empty-msg">Tu carrito está vacío.</p>
+                    ) : (
+                        itemsArray.map(item => (
+                            <div key={item.id} className="cart-item">
+                                <div className="item-info">
+                                    <h4>{item.name}</h4>
+                                    <p>${item.price.toLocaleString('es-AR')}</p>
+                                </div>
+                                <div className="item-controls">
+                                    <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
+                                    <span>{item.quantity}</span>
+                                    <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                                </div>
+                                <button onClick={() => removeCartItem(item.id)} className="delete-btn">🗑️</button>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                <div className="cart-footer">
+                    <div className="total-row">
+                        <span>Total:</span>
+                        <span>${total.toLocaleString('es-AR')}</span>
+                    </div>
+                    <button 
+                        className="checkout-btn" 
+                        disabled={itemsArray.length === 0}
+                        onClick={handleCheckout}
+                    >
+                        ENVIAR PEDIDO POR WHATSAPP
+                    </button>
+                </div>
+            </div>
+            
+            {/* Fondo oscuro al abrir */}
+            {$isCartOpen && <div className="cart-overlay" onClick={() => isCartOpen.set(false)}></div>}
         </>
     );
 }

@@ -1,14 +1,11 @@
 ---
 const { product } = Astro.props;
 
-// Iniciales
 const initial = product.name ? product.name.charAt(0).toUpperCase() : '?';
 
-// Colores
 const getCategoryColor = (cat: string) => {
     const valorPuro = Array.isArray(cat) ? cat[0] : cat;
     const category = String(valorPuro || '').toLowerCase();
-
     if (category.includes('solar')) return '#F59E0B';
     if (category.includes('labios')) return '#E11D48';
     if (category.includes('rostro') || category.includes('facial')) return '#EC4899';
@@ -23,212 +20,262 @@ const getCategoryColor = (cat: string) => {
 const bgColor = getCategoryColor(product.category);
 ---
 
-<article class="product-row" data-category={product.category}>
-    <div class="thumb" style={`background-color: ${bgColor};`}>
-        <span class="initial">{initial}</span>
-        {product.image && (
-            <img src={product.image} alt={product.name} onerror="this.style.display='none'" />
-        )}
+<article class="product-card" data-category={product.category}>
+    <div class="card-header">
+        <span class="category-pill" style={`background-color: ${bgColor};`}>
+            {product.category || 'General'}
+        </span>
+        {(product.oldPrice || product.isOffer) && <span class="badge-offer">OFERTA</span>}
     </div>
-    
-    <div class="info clickable">
-        <div class="header">
-            <h3 class="truncate">{product.name}</h3>
-            {(product.oldPrice || product.isOffer) && <span class="badge">OFERTA</span>}
+
+    <div class="img-container">
+        <div class="thumb" style={`background-color: ${bgColor};`}>
+            <span class="initial">{initial}</span>
+            {product.image && (
+                <img src={product.image} alt={product.name} onerror="this.style.display='none'" />
+            )}
         </div>
-        <p class="code truncate">
-            <span class="category-dot" style={`background-color: ${bgColor};`}></span>
-            {product.category || 'General'} • Cód: {product.id}
+    </div>
+
+    <div class="card-body">
+        <h3 class="product-title">{product.name}</h3>
+        <p class="product-code">Cód: {product.id}</p>
+        
+        <p class="product-desc">
+            {product.description ? product.description : (
+                // Si no hay descripción en Airtable, usamos una genérica según la categoría
+                product.category?.toLowerCase().includes('solar') ? 'Protección avanzada contra rayos UV para el cuidado de tu piel bajo el sol.' :
+                product.category?.toLowerCase().includes('rostro') ? 'Fórmula especializada para hidratar y revitalizar la piel delicada del rostro.' :
+                product.category?.toLowerCase().includes('labios') ? 'Color intenso y nutrición para unos labios suaves y definidos.' :
+                product.category?.toLowerCase().includes('perfume') ? 'Fragancia exclusiva con notas persistentes y aroma envolvente.' :
+                product.category?.toLowerCase().includes('cuerpo') ? 'Hidratación corporal profunda para una piel suave y elástica todo el día.' :
+                product.category?.toLowerCase().includes('cabello') ? 'Tratamiento capilar para restaurar el brillo y la fuerza de tu pelo.' :
+                'Producto de alta calidad seleccionado por Garrido Beauty para tu rutina de cuidado personal.'
+            )}
         </p>
     </div>
 
-    <div class="actions">
-        <div class="prices">
+    <div class="card-footer">
+        <div class="price-box">
             {product.oldPrice && <span class="old-price">${Number(product.oldPrice).toLocaleString('es-AR')}</span>}
             <span class="price">${Number(product.price).toLocaleString('es-AR')}</span>
         </div>
-        
-        <div class="qty-selector">
-            <button class="qty-btn minus" type="button">-</button>
-            <input type="text" value="1" readonly class="qty-input" />
-            <button class="qty-btn plus" type="button">+</button>
-        </div>
 
-        <button 
-            class="add-to-cart-btn"
-            data-id={product.id}
-            data-name={product.name}
-            data-price={product.price}
-            data-quantity="1" 
-            aria-label="Agregar"
-        >
-            +
-        </button>
+        <div class="actions-row">
+            <div class="qty-selector">
+                <button class="qty-btn minus" type="button">-</button>
+                <input type="text" value="1" readonly class="qty-input" />
+                <button class="qty-btn plus" type="button">+</button>
+            </div>
+            
+            <button 
+                class="add-to-cart-btn"
+                data-id={product.id}
+                data-name={product.name}
+                data-price={product.price}
+                data-quantity="1" 
+                aria-label="Agregar al carrito"
+            >
+                AGREGAR
+            </button>
+        </div>
     </div>
 </article>
 
 <script>
-    document.querySelectorAll('.product-row').forEach(row => {
-        // 1. Seleccionamos los elementos
-        const minusBtn = row.querySelector('.minus');
-        const plusBtn = row.querySelector('.plus');
-        const input = row.querySelector('.qty-input');
-        const addBtn = row.querySelector('.add-to-cart-btn');
-        
-        // Elementos para el acordeón (texto largo)
-        const infoDiv = row.querySelector('.info');
-        const title = row.querySelector('h3');
-        const code = row.querySelector('.code');
+    import { addCartItem } from '../stores/cartStore';
 
-        // 2. VERIFICACIÓN ESTRICTA (Esto arregla el error del dataset y value)
+    document.querySelectorAll('.product-card').forEach(card => {
+        const minusBtn = card.querySelector('.minus');
+        const plusBtn = card.querySelector('.plus');
+        const input = card.querySelector('.qty-input');
+        const addBtn = card.querySelector('.add-to-cart-btn');
+
+        // Verificaciones de seguridad (TypeScript ya sabe que son elementos HTML si pasan esto)
         if (
-            !minusBtn || 
-            !plusBtn || 
+            !minusBtn || !plusBtn || 
             !input || !(input instanceof HTMLInputElement) || 
-            !addBtn || !(addBtn instanceof HTMLElement) 
-        ) {
-            return; // Si algo falla, paramos aquí para evitar errores
-        }
-
-        // --- LÓGICA DE TEXTO (Acordeón) ---
-        if (infoDiv && title && code) {
-            infoDiv.addEventListener('click', () => {
-                title.classList.toggle('expanded');
-                code.classList.toggle('expanded');
-            });
-        }
+            !addBtn || !(addBtn instanceof HTMLElement)
+        ) return;
 
         // --- LÓGICA DE CANTIDAD ---
         plusBtn.addEventListener('click', () => {
-            let val = parseInt(input.value);
+            let val = parseInt(input.value || '0'); // Seguridad extra aquí también
             val++;
             input.value = val.toString();
-            // Como ya verificamos que es HTMLElement, el editor permite usar dataset
             addBtn.dataset.quantity = val.toString();
         });
 
         minusBtn.addEventListener('click', () => {
-            let val = parseInt(input.value);
+            let val = parseInt(input.value || '0');
             if (val > 1) {
                 val--;
                 input.value = val.toString();
                 addBtn.dataset.quantity = val.toString();
             }
         });
-        
-        // Resetear botón después de agregar
+
+        // --- LÓGICA DE AGREGAR AL CARRITO ---
         addBtn.addEventListener('click', () => {
+            // AQUÍ ESTABA EL ERROR:
+            // Usamos || '' y || '0' para que TypeScript nunca vea un "undefined"
+            const productData = {
+                id: addBtn.dataset.id || 'unknown',
+                name: addBtn.dataset.name || 'Sin nombre',
+                price: parseFloat(addBtn.dataset.price || '0'), // ¡Arreglado!
+                quantity: parseInt(addBtn.dataset.quantity || '1')
+            };
+
+            addCartItem(productData);
+
+            // Feedback Visual
+            const originalText = addBtn.innerText;
+            addBtn.innerText = "¡LISTO!";
+            addBtn.style.backgroundColor = "#10B981";
+            
              setTimeout(() => {
                  input.value = "1";
                  addBtn.dataset.quantity = "1";
-             }, 100);
+                 addBtn.innerText = originalText;
+                 addBtn.style.backgroundColor = ""; 
+             }, 1000);
         });
     });
 </script>
 
 <style>
-    .product-row {
-        display: flex;
-        align-items: center; /* Centrado vertical */
+    /* Estilo Tarjeta Vertical */
+    .product-card {
         background: white;
-        padding: 0.8rem 0.5rem;
-        border-bottom: 1px solid #f0f0f0;
-        gap: 0.8rem;
-        flex-wrap: nowrap;
-        align-items: flex-start; /* Alineamos arriba para que si crece el texto, el icono quede arriba */
+        border: 1px solid #eee;
+        border-radius: 12px; /* Bordes redondeados */
+        padding: 1.2rem;
+        display: flex;
+        flex-direction: column; /* Elementos uno debajo del otro */
+        transition: transform 0.2s, box-shadow 0.2s;
+        height: 100%; /* Para que todas tengan la misma altura */
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px); /* Efecto de elevación al pasar el mouse */
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        border-color: #ddd;
+    }
+
+    /* Cabecera con etiquetas flotantes */
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .category-pill {
+        color: white;
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-offer {
+        background: var(--color-accent);
+        color: white;
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+
+    /* Imagen Grande */
+    .img-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
     }
 
     .thumb {
-        width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; position: relative;
-        display: flex; align-items: center; justify-content: center; overflow: hidden;
-        color: white; font-family: var(--font-brand); font-weight: bold; font-size: 1.2rem;
-        margin-top: 2px; /* Pequeño ajuste para alinear con la primera línea de texto */
-    }
-    .thumb img { position: absolute; width: 100%; height: 100%; object-fit: cover; background: white; }
-    
-    .info {
-        flex-grow: 1;
-        min-width: 0;
+        width: 80px; /* Círculo más grande */
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         overflow: hidden;
-        cursor: pointer; /* Manito para indicar click */
-        user-select: none; /* Evita que se seleccione el texto al hacer click rápido */
+        color: white;
+        font-family: var(--font-brand);
+        font-size: 2rem;
+        position: relative;
+    }
+    .thumb img { position: absolute; width: 100%; height: 100%; object-fit: cover; }
+
+    /* Cuerpo */
+    .card-body {
+        flex-grow: 1; /* Empuja el footer hacia abajo */
+        text-align: center;
+        margin-bottom: 1rem;
     }
 
-    /* ESTILO PARA CUANDO SE TOCA (Efecto visual opcional) */
-    .info:active { opacity: 0.7; }
-
-    .header { 
-        display: flex; 
-        align-items: flex-start; /* Para que el badge no se estire */
-        gap: 5px;
-        flex-wrap: wrap; /* Permitimos wrap si se expande */
-    }
-
-    h3 {
-        font-size: 0.95rem;
-        margin: 0;
+    .product-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.3rem;
         color: var(--color-black);
-        font-weight: 600;
-        font-family: var(--font-body);
-        line-height: 1.3;
     }
 
-    /* --- CLASES DE TRUNCADO Y EXPANSIÓN --- */
-    .truncate {
-        white-space: nowrap;      /* Obliga a una línea */
-        overflow: hidden;         /* Oculta lo que sobra */
-        text-overflow: ellipsis;  /* Pone los ... */
-        transition: all 0.2s ease; /* Animación suave no necesaria pero queda bien si hay cambios de color */
+    .product-code {
+        font-size: 0.75rem;
+        color: #999;
+        margin-bottom: 0.8rem;
     }
 
-    /* Cuando tiene esta clase, se muestra todo */
-    .truncate.expanded {
-        white-space: normal;      /* Permite múltiples líneas */
-        overflow: visible;        /* Muestra todo */
+    .product-desc {
+        font-size: 0.9rem;
+        color: #666;
+        line-height: 1.5;
+        /* Limitamos a 3 líneas para que no quede gigante */
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
-    .code {
-        font-size: 0.7rem;
-        color: #888;
+    /* Footer: Precio y Botones */
+    .card-footer {
+        border-top: 1px solid #f5f5f5;
+        padding-top: 1rem;
+    }
+
+    .price-box {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .price { font-size: 1.4rem; font-weight: 700; color: var(--color-black); }
+    .old-price { display: block; font-size: 0.9rem; text-decoration: line-through; color: #aaa; }
+
+    .actions-row {
         display: flex;
-        align-items: center;
-        gap: 5px;
-        margin-top: 2px;
+        gap: 10px;
+        justify-content: center;
     }
 
-    .category-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
-    .badge { background-color: var(--color-accent); color: white; font-size: 0.55rem; padding: 1px 4px; border-radius: 4px; font-weight: bold; flex-shrink: 0; margin-top: 2px; }
-
-    .actions {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-left: auto;
-        flex-shrink: 0;
-        padding-top: 2px; /* Alineación visual con el texto */
-    }
-
-    .prices { display: flex; flex-direction: column; align-items: flex-end; margin-right: 2px; }
-    .price { font-weight: 700; color: var(--color-black); font-size: 1rem; }
-    .old-price { font-size: 0.7rem; text-decoration: line-through; color: #aaa; }
-
-    .qty-selector { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; height: 32px; }
-    .qty-btn { background: #f9f9f9; border: none; width: 28px; height: 100%; font-weight: bold; cursor: pointer; color: var(--color-black); padding: 0; display: flex; align-items: center; justify-content: center;}
-    .qty-input { width: 28px; height: 100%; border: none; text-align: center; font-size: 0.85rem; color: var(--color-black); outline: none; padding: 0; }
+    /* Inputs y Botones adaptados a la tarjeta */
+    .qty-selector { display: flex; border: 1px solid #ddd; border-radius: 6px; height: 40px; }
+    .qty-btn { width: 30px; border: none; background: #f9f9f9; cursor: pointer; font-weight: bold; }
+    .qty-input { width: 35px; border: none; text-align: center; outline: none; }
 
     .add-to-cart-btn {
-        background: var(--color-black); color: white; border: none; width: 32px; height: 32px;
-        border-radius: 4px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: background 0.2s;
-        display: flex; align-items: center; justify-content: center; padding: 0; padding-bottom: 2px;
+        background: var(--color-black);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+        height: 40px;
+        flex-grow: 1; /* Ocupa el espacio restante */
     }
-    .add-to-cart-btn:hover { background: var(--color-accent); }
-
-    @media (max-width: 380px) {
-        .product-row { gap: 0.4rem; padding: 0.8rem 0.2rem; }
-        .thumb { width: 36px; height: 36px; font-size: 1rem; }
-        h3 { font-size: 0.85rem; }
-        .price { font-size: 0.9rem; }
-        .qty-selector, .add-to-cart-btn { height: 30px; }
-        .qty-btn, .qty-input, .add-to-cart-btn { width: 26px; }
-    }
+    .add-to-cart-btn:hover { background: var(--color-accent); transform: scale(1.02); }
 </style>

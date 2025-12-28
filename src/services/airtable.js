@@ -1,28 +1,32 @@
 const AIRTABLE_API_KEY = import.meta.env.AIRTABLE_API_KEY;
 const BASE_ID = import.meta.env.AIRTABLE_BASE_ID;
 
-// USAMOS EL ID DE LA TABLA (Más seguro que usar el nombre)
-const TABLE_ID = 'tblCEBGw9wsrS3Yn0'; 
+// TU TABLA NUEVA
+const TABLE_ID = 'tblMWX7lSYtd3swTB'; 
 
 export async function getProducts() {
-    // URL limpia sin filtros raros
-    const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}?maxRecords=300`;
+    // URL con la vista específica (usando el ID de la vista que es más seguro)
+    const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}?maxRecords=300&view=viwR49bfBz41np9j6`;
     
     try {
         const response = await fetch(url, {
             headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` }
         });
         
-        if (!response.ok) return [];
+        if (!response.ok) {
+            console.error(" Error Airtable:", response.status);
+            return [];
+        }
 
         const data = await response.json();
 
         return data.records.map(record => {
-            // --- LIMPIEZA DE DATOS ---
-            // 1. Obtenemos el dato crudo de Airtable (puede ser "Solar" o ["Solar"])
-            const rawCat = record.fields.Categoria || record.fields.Category;
+            // --- LIMPIEZA DE DATOS (El arreglo para los caracteres raros) ---
             
-            // 2. Si es una lista (Array), sacamos el primer elemento. Si es texto, lo dejamos igual.
+            // 1. Obtenemos la categoría (probamos con tilde, sin tilde o en inglés)
+            const rawCat = record.fields.Categoria || record.fields['Categoría'] || record.fields.Category;
+            
+            // 2. MAGIA: Si es una lista ['Solar'], sacamos el texto. Si es texto, lo dejamos igual.
             const cleanCategory = Array.isArray(rawCat) ? rawCat[0] : rawCat;
 
             return {
@@ -30,9 +34,10 @@ export async function getProducts() {
                 id: record.fields.id || '000',
                 name: record.fields.Nombre || 'Sin Nombre',
                 
-                // 3. Guardamos la categoría limpia. Si está vacía, ponemos 'General'
+                // 3. Usamos la categoría limpia
                 category: cleanCategory || 'General',
                 
+                description: record.fields.Descripcion || '', 
                 price: record.fields.Precio || 0,
                 oldPrice: record.fields.PrecioAnterior || null,
                 isOffer: record.fields.Oferta || false,
@@ -40,11 +45,12 @@ export async function getProducts() {
             };
         });
     } catch (error) {
-        console.error("Error:", error);
+        console.error(" Error de conexión:", error);
         return [];
     }
 }
 
+// Función para actualizar precios (se mantiene igual)
 export async function updateProduct(airtableId, newPrice, isOffer) {
     const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}/${airtableId}`;
     
