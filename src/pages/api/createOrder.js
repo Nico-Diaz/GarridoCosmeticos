@@ -33,7 +33,6 @@ export const POST = async ({ request }) => {
     records: [
       {
         fields: {
-          "Nombre": "Pedido Web",
           "Productos": data.products,
           "Total": Number(data.total)
         }

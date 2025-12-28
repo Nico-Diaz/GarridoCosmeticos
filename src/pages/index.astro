@@ -4,8 +4,10 @@ import ProductCard from '../components/ProductCard.astro';
 import Cart from '../components/Cart.jsx';
 import { getProducts } from '../services/airtable'; 
 
+// ACTUALIZACIÓN: Agregamos 'codigo' a la interfaz
 interface Product {
     id: string;
+    codigo?: string | number; // <--- NUEVO CAMPO
     name: string;
     category: string;
     description?: string;
@@ -18,19 +20,9 @@ interface Product {
 
 const products: Product[] = await getProducts();
 
-// Asegúrate de que estos nombres sean IDÉNTICOS a los de tu "Selección Única" en Airtable
-// (Mayúsculas, minúsculas y tildes importan)
 const categories = [
-    'Todos',
-    'Solar',
-    'Rostro',
-    'Cuerpo',
-    'Cabello',
-    'Labios',
-    'Maquillaje',
-    'Fragancias',
-    'Uñas',
-    'General'
+    'Todos', 'Solar', 'Rostro', 'Cuerpo', 'Cabello', 
+    'Labios', 'Maquillaje', 'Fragancias', 'Uñas', 'General'
 ];
 ---
 
@@ -68,40 +60,32 @@ const categories = [
 </Layout>
 
 <script>
-    // --- LÓGICA DE FILTRADO CORREGIDA ---
+    // Tu lógica de filtrado se mantiene igual, funciona perfecta.
     document.addEventListener('DOMContentLoaded', () => {
         const buttons = document.querySelectorAll('.filter-btn');
-        // AQUÍ ESTABA EL ERROR: Ahora buscamos '.product-card', no '.product-row'
         const cards = document.querySelectorAll('.product-card'); 
         const noResultsMsg = document.getElementById('no-results');
 
         buttons.forEach(btn => {
             btn.addEventListener('click', () => {
-                // 1. Gestionar estado visual de los botones
                 buttons.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
 
-                // 2. Obtener la categoría seleccionada
-                // Usamos 'data-category' si existe, o el texto del botón
                 const selectedCategory = (btn as HTMLElement).dataset.category || btn.textContent?.trim() || 'Todos';
-                
                 let visibleCount = 0;
 
-                // 3. Filtrar las tarjetas
                 cards.forEach(card => {
                     const cardElement = card as HTMLElement;
-                    // Airtable a veces manda espacios extra, así que limpiamos con trim()
                     const productCategory = (cardElement.dataset.category || '').trim();
 
                     if (selectedCategory === 'Todos' || productCategory === selectedCategory) {
-                        cardElement.style.display = 'flex'; // Mostrar (flex porque es el display original de la tarjeta)
+                        cardElement.style.display = 'flex'; 
                         visibleCount++;
                     } else {
-                        cardElement.style.display = 'none'; // Ocultar
+                        cardElement.style.display = 'none';
                     }
                 });
 
-                // 4. Mostrar mensaje si no hay productos
                 if (noResultsMsg) {
                     noResultsMsg.style.display = visibleCount === 0 ? 'block' : 'none';
                 }
@@ -111,117 +95,20 @@ const categories = [
 </script>
 
 <style>
-    main {
-        max-width: 100%;
-        margin: 0 auto;
-        padding-bottom: 80px; /* Espacio para el carrito flotante */
-    }
-
-    .hero {
-        text-align: center;
-        padding: 2rem 1rem;
-        background: #fff;
-        margin-bottom: 1rem;
-    }
-
-    h1 {
-        font-size: 2.5rem;
-        font-weight: 800;
-        margin: 0;
-        font-family: var(--font-brand);
-        letter-spacing: -1px;
-    }
-
-    .text-gradient {
-        color: var(--color-accent);
-    }
-
-    .subtitle {
-        color: #888;
-        letter-spacing: 2px;
-        font-size: 0.8rem;
-        margin-top: 0.5rem;
-        font-weight: 500;
-    }
-
-    /* FILTROS */
-    .filters-container {
-        position: sticky;
-        top: 0;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(5px);
-        z-index: 10;
-        padding: 10px 0;
-        border-bottom: 1px solid #eee;
-        margin-bottom: 20px;
-    }
-
-    .filters-scroll {
-        display: flex;
-        gap: 10px;
-        overflow-x: auto;
-        padding: 0 20px;
-        padding-bottom: 5px;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        
-        /* Centrado en Desktop, izquierda en Móvil */
-        justify-content: center;
-    }
-    
-    @media (max-width: 850px) {
-        .filters-scroll {
-            justify-content: flex-start;
-        }
-    }
-
+    /* Tus estilos se mantienen igual */
+    main { max-width: 100%; margin: 0 auto; padding-bottom: 80px; }
+    .hero { text-align: center; padding: 2rem 1rem; background: #fff; margin-bottom: 1rem; }
+    h1 { font-size: 2.5rem; font-weight: 800; margin: 0; font-family: var(--font-brand); letter-spacing: -1px; }
+    .text-gradient { color: var(--color-accent); }
+    .subtitle { color: #888; letter-spacing: 2px; font-size: 0.8rem; margin-top: 0.5rem; font-weight: 500; }
+    .filters-container { position: sticky; top: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px); z-index: 10; padding: 10px 0; border-bottom: 1px solid #eee; margin-bottom: 20px; }
+    .filters-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 0 20px; padding-bottom: 5px; -webkit-overflow-scrolling: touch; scrollbar-width: none; justify-content: center; }
+    @media (max-width: 850px) { .filters-scroll { justify-content: flex-start; } }
     .filters-scroll::-webkit-scrollbar { display: none; }
-
-    .filter-btn {
-        background: white;
-        border: 1px solid #e5e5e5;
-        padding: 6px 16px;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        color: #555;
-        white-space: nowrap;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-family: var(--font-body);
-    }
-
+    .filter-btn { background: white; border: 1px solid #e5e5e5; padding: 6px 16px; border-radius: 20px; font-size: 0.9rem; color: #555; white-space: nowrap; cursor: pointer; transition: all 0.2s; font-family: var(--font-body); }
     .filter-btn:hover { border-color: #333; color: #000; }
-    
-    .filter-btn.active {
-        background: var(--color-black);
-        color: white;
-        border-color: var(--color-black);
-    }
-
-    /* GRILLA DE PRODUCTOS */
-    .product-list-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        display: grid;
-        /* Tarjetas responsivas: mínimo 280px de ancho */
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-        gap: 20px;
-        padding: 0 20px;
-    }
-    
-    /* Ajuste para móviles para que ocupe todo el ancho */
-    @media (max-width: 600px) {
-        .product-list-container {
-            grid-template-columns: 1fr; /* Una sola columna */
-            padding: 0 15px;
-        }
-    }
-
-    .cart-wrapper {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 100;
-        width: auto;
-    }
+    .filter-btn.active { background: var(--color-black); color: white; border-color: var(--color-black); }
+    .product-list-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 0 20px; }
+    @media (max-width: 600px) { .product-list-container { grid-template-columns: 1fr; padding: 0 15px; } }
+    .cart-wrapper { position: fixed; bottom: 20px; right: 20px; z-index: 100; width: auto; }
 </style>

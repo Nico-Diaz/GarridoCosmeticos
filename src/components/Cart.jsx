@@ -4,92 +4,76 @@ import { isCartOpen, cartItems, removeCartItem, updateQuantity } from '../stores
 import './Cart.css';
 
 export default function Cart() {
-    // Hooks de estado y tienda
     const $isCartOpen = useStore(isCartOpen);
     const $cartItems = useStore(cartItems);
     const [isLoading, setIsLoading] = useState(false);
     
-    // Convertir el objeto de productos a un array para poder recorrerlo
     const itemsArray = Object.values($cartItems);
-
-    // Calcular totales
     const total = itemsArray.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const totalItems = itemsArray.reduce((acc, item) => acc + item.quantity, 0);
 
-    // --- FUNCIÓN PRINCIPAL DE CHECKOUT ---
+    // --- CHECKOUT ---
     const handleCheckout = async () => {
-        setIsLoading(true); // Activar modo "cargando"
+        setIsLoading(true);
 
-        // 1. Preparar el resumen de productos para Airtable
+        // 1. FORMATO PARA AIRTABLE (Columna "Producto" en Pedidos)
+        // Se verá: "[101002] Labial (x1), [101500] Crema (x2)"
         const productsSummary = itemsArray
-            .map(item => `${item.name} (x${item.quantity})`)
+            .map(item => `[${item.codigo || 'S/C'}] ${item.name} (x${item.quantity})`)
             .join(', ');
 
-        // Debug: Ver en la consola del navegador qué estamos enviando
-        console.log("🛒 Enviando a Airtable:", { products: productsSummary, total: total });
-
         try {
-            // 2. Enviar a nuestra API (Backend)
             const response = await fetch('/api/createOrder', {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json' 
-                },
-                // ¡AQUÍ ESTABA EL ERROR ANTES! AHORA ESTÁ CORREGIDO:
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     products: productsSummary,
                     total: total
                 })
             });
 
-            // Leer respuesta del servidor (sin romper si falla)
-            const resultText = await response.text();
-            
             if (!response.ok) {
-                console.error("⚠️ Airtable reportó un problema:", resultText);
+                console.error("⚠️ Error guardando en Airtable");
             } else {
-                console.log("✅ Pedido guardado en Airtable:", resultText);
+                console.log("✅ Pedido guardado en Airtable");
             }
 
         } catch (error) {
-            console.error("❌ Error de conexión con la API:", error);
-            // No detenemos el flujo, seguimos hacia WhatsApp para no perder la venta
+            console.error("❌ Error de conexión:", error);
         }
 
-        // 3. Configurar Mensaje de WhatsApp
-        // ⚠️ IMPORTANTE: REEMPLAZA ESTO CON TU NÚMERO REAL
-        const phoneNumber = "5492604686528"; 
+        // 2. FORMATO PARA WHATSAPP
+        const phoneNumber = "5492604686528";
         
         let message = "Hola Garrido Beauty! Quiero realizar el siguiente pedido:\n\n";
         
         itemsArray.forEach(item => {
             const subtotal = item.price * item.quantity;
-            message += `- *${item.name}* (x${item.quantity}): $${subtotal.toLocaleString('es-AR')}\n`;
+            // Agregamos el código [1234] al mensaje
+            message += `- [${item.codigo || 'S/C'}] *${item.name}* (x${item.quantity}): $${subtotal.toLocaleString('es-AR')}\n`;
         });
 
         message += `\n*Total Final: $${total.toLocaleString('es-AR')}*`;
         message += "\n\nQuedo a la espera de los datos para el pago/envío. Gracias!";
 
-        // 4. Abrir WhatsApp
         const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
         
-        setIsLoading(false); // Desactivar modo "cargando"
+        setIsLoading(false);
         window.open(url, '_blank');
     };
 
     return (
         <>
-            {/* BOTÓN FLOTANTE DEL CARRITO */}
+            {/* Botón Flotante */}
             <button 
                 className="cart-trigger" 
                 onClick={() => isCartOpen.set(!$isCartOpen)}
                 aria-label="Abrir carrito"
             >
-                🛒
-                {totalItems > 0 && <span className="cart-count">{totalItems}</span>}
+                🛒 {totalItems > 0 && <span className="cart-count">{totalItems}</span>}
             </button>
 
-            {/* PANEL LATERAL (DRAWER) */}
+            {/* Panel Lateral */}
             <div className={`cart-drawer ${$isCartOpen ? 'open' : ''}`}>
                 <div className="cart-header">
                     <h2>Tu Pedido</h2>
@@ -104,6 +88,10 @@ export default function Cart() {
                             <div key={item.id} className="cart-item">
                                 <div className="item-info">
                                     <h4>{item.name}</h4>
+                                    {/* Mostramos el código chiquito en el carrito */}
+                                    <p className="code-hint" style={{fontSize: '0.75rem', color: '#888'}}>
+                                        Cód: {item.codigo || 'S/C'}
+                                    </p>
                                     <p>${item.price.toLocaleString('es-AR')}</p>
                                 </div>
                                 <div className="item-controls">
@@ -123,7 +111,6 @@ export default function Cart() {
                         <span>${total.toLocaleString('es-AR')}</span>
                     </div>
                     
-                    {/* BOTÓN DE ENVIAR */}
                     <button 
                         className="checkout-btn" 
                         disabled={itemsArray.length === 0 || isLoading}
@@ -135,7 +122,6 @@ export default function Cart() {
                 </div>
             </div>
             
-            {/* FONDO OSCURO (Overlay para cerrar al hacer click fuera) */}
             {$isCartOpen && <div className="cart-overlay" onClick={() => isCartOpen.set(false)}></div>}
         </>
     );

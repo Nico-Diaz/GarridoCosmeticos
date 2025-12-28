@@ -4,51 +4,66 @@ const BASE_ID = import.meta.env.AIRTABLE_BASE_ID;
 // TU TABLA NUEVA
 const TABLE_ID = 'tblMWX7lSYtd3swTB'; 
 
-export async function getProducts() {
-    // URL con la vista específica (usando el ID de la vista que es más seguro)
-    const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}?maxRecords=300&view=viwR49bfBz41np9j6`;
+export const getProducts = async () => {
+    console.log("🔍 --- INICIANDO CONEXIÓN A AIRTABLE ---");
     
+    const AIRTABLE_API_KEY = import.meta.env.AIRTABLE_API_KEY;
+    const BASE_ID = import.meta.env.AIRTABLE_BASE_ID;
+    const TABLE_ID = import.meta.env.AIRTABLE_PRODUCTS_TABLE_ID;
+
+    // 1. VERIFICACIÓN DE VARIABLES
+    if (!AIRTABLE_API_KEY) console.error("❌ Faltan la API KEY");
+    if (!BASE_ID) console.error("❌ Falta el BASE ID");
+    if (!TABLE_ID) console.error("❌ Falta el TABLE ID (Productos)");
+
+    // 2. URL SIMPLE (Sin ?view=Grilla... para probar primero)
+    const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}`; 
+    console.log("🌐 Consultando URL:", url);
+
     try {
         const response = await fetch(url, {
             headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` }
         });
-        
+
+        // 3. VERIFICAR SI AIRTABLE NOS RECHAZA
         if (!response.ok) {
-            console.error(" Error Airtable:", response.status);
+            const errorText = await response.text();
+            console.error("❌ ERROR CRÍTICO DE AIRTABLE:", response.status, errorText);
             return [];
         }
 
         const data = await response.json();
+        const records = data.records || [];
 
-        return data.records.map(record => {
-            // --- LIMPIEZA DE DATOS (El arreglo para los caracteres raros) ---
-            
-            // 1. Obtenemos la categoría (probamos con tilde, sin tilde o en inglés)
-            const rawCat = record.fields.Categoria || record.fields['Categoría'] || record.fields.Category;
-            
-            // 2. MAGIA: Si es una lista ['Solar'], sacamos el texto. Si es texto, lo dejamos igual.
-            const cleanCategory = Array.isArray(rawCat) ? rawCat[0] : rawCat;
+        console.log(`📦 Airtable respondió con ${records.length} productos.`);
 
+        if (records.length === 0) {
+            console.warn("⚠️ La conexión funcionó, pero la tabla parece vacía.");
+        } else {
+            console.log("✅ Primer producto encontrado (Raw):", JSON.stringify(records[0].fields));
+        }
+
+        // 4. MAPEO DE DATOS
+        return records.map(record => {
+            const f = record.fields;
             return {
-                airtableId: record.id,
-                id: record.fields.id || '000',
-                name: record.fields.Nombre || 'Sin Nombre',
-                
-                // 3. Usamos la categoría limpia
-                category: cleanCategory || 'General',
-                
-                description: record.fields.Descripcion || '', 
-                price: record.fields.Precio || 0,
-                oldPrice: record.fields.PrecioAnterior || null,
-                isOffer: record.fields.Oferta || false,
-                image: record.fields.Imagen || ''
+                id: record.id,
+                codigo: f.id || 'S/C',
+                name: f.Nombre || 'Sin Nombre',
+                price: f.Precio || 0,
+                category: f.Categoria || 'General',
+                image: f.Imagen ? f.Imagen[0].url : null,
+                description: f.Descripcion || '',
+                oldPrice: f['Precio Anterior'],
+                isOffer: f.Oferta
             };
         });
+
     } catch (error) {
-        console.error(" Error de conexión:", error);
+        console.error("❌ ERROR DE RED/CÓDIGO:", error);
         return [];
     }
-}
+};
 
 // Función para actualizar precios (se mantiene igual)
 export async function updateProduct(airtableId, newPrice, isOffer) {
