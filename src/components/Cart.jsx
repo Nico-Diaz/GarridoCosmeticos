@@ -58,9 +58,9 @@ export default function Cart() {
 
         // 3. Configurar Mensaje de WhatsApp
         // ⚠️ IMPORTANTE: REEMPLAZA ESTO CON TU NÚMERO REAL
-        const phoneNumber = "5492612461691"; 
+        const phoneNumber = "5492604686528"; 
         
-        let message = "Hola Garrido Beauty! 👋 Quiero realizar el siguiente pedido:\n\n";
+        let message = "Hola Garrido Beauty! Quiero realizar el siguiente pedido:\n\n";
         
         itemsArray.forEach(item => {
             const subtotal = item.price * item.quantity;
